@@ -1,0 +1,13 @@
+setup.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
+web_bot/__init__.py
+web_bot/items.py
+web_bot/middlewares.py
+web_bot/pipelines.py
+web_bot/settings.py
+web_bot/spiders/__init__.py
+web_bot/spiders/google_spider.py
