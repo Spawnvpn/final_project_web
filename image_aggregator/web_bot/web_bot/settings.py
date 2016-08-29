@@ -11,6 +11,11 @@ BOT_VERSION = '1.0'
 
 SPIDER_MODULES = ['web_bot.spiders']
 NEWSPIDER_MODULE = 'web_bot.spiders'
+
+ITEM_PIPELINES = {
+    'web_bot.pipelines.WebBotPipeline': 100,
+    }
+
 # USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 USER_AGENT_LIST = [
     'Mozilla/5.0 (X11; U; Linux i586; de; rv:5.0) Gecko/20100101 Firefox/5.0',
@@ -135,8 +140,4 @@ DOWNLOADER_MIDDLEWARES = {
     'web_bot.middlewares.RandomUserAgentMiddleware': 400,
     # 'CheckIP.middlewares.ProxyMiddleware': 410,
     'web_bot.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
-}
-
-ITEM_PIPELINES = {
-    'web_bot.pipelines.WebBotPipeline': 400,
 }

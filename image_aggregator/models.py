@@ -14,5 +14,6 @@ class SearchHistory(models.Model):
 
     search_phrase = models.CharField(max_length=255, blank=True, null=True)
     search_state = models.IntegerField(choices=STATE_CHOICES, default=PROCESS)
-    image_url = models.CharField(max_length=1000, blank=True, null=True)
-    engine_url = models.CharField(max_length=255, blank=True, null=True)
+    image_url = models.CharField(max_length=2000, blank=True, null=True)
+    small_image = models.CharField(max_length=2000, blank=True, null=True)
+    search_engine = models.CharField(max_length=255, blank=True, null=True)

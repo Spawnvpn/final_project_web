@@ -4,15 +4,14 @@ from scrapy.shell import inspect_response
 from multiprocessing import Process
 from scrapy.crawler import CrawlerProcess, CrawlerRunner
 from scrapy.settings import Settings
-# from image_aggregator.web_bot.web_bot.pipelines import WebBotPipeline
 
 
 class GoogleImageSpider(scrapy.Spider):
 
     def __init__(self, req=None, **kwargs):
-        super().__init__(**kwargs)
+        super(GoogleImageSpider, self).__init__(**kwargs)
         self.req = req
-    name = 'imagespider'
+    name = 'googleimagespider'
     # req = 'cats'
 
     def start_requests(self):
@@ -28,7 +27,7 @@ class GoogleImageSpider(scrapy.Spider):
         return start_urls
 
     def parse(self, response):
-        # item = WebBotPipeline()
+        item = dict()
         # inspect_response(response, self)
         # elements = response.xpath('//*[@id="rg_s"]') # for js
         elements = response.xpath('//*[@id="ires"]/table[@class="images_table"]')
@@ -36,16 +35,17 @@ class GoogleImageSpider(scrapy.Spider):
         for r in range(1, 6):
             for d in range(1, 5):
                 for pic in response.xpath('//*[@id="ires"]/table/tr[' + str(r) + ']/td[' + str(d) + ']'):
+                    small_image = pic.xpath('.//a/img/@src').extract()[0]
                     content = pic.xpath('.//a/@href').extract()[0][7:]
                     superflous = content.find('&')
                     content = content[:superflous]
                     self.logger.info(pic)
-                    yield {
-                        'image_url': content,
-                        'search_engine': 'google'
-                    }
+                    item['image'] = small_image
+                    item['image_url'] = content
+                    item['search_engine'] = 'google.com'
+                    yield item
 
-        """For js page"""
+        # """For js page"""
         # for element in elements:
         #     self.logger.info(element)
         #     content = elements.xpath('./td/a/@href')
@@ -60,24 +60,24 @@ class GoogleImageSpider(scrapy.Spider):
             #     item
             # }
 
-
-class GoogleCrawlerScript:
-
-    def __init__(self):
-        self.crawler = CrawlerProcess(Settings())
-        # self.phrase = phrase
-
-    def _crawl(self, phrase):
-        self.crawler.crawl(GoogleImageSpider(phrase))
-        self.crawler.start()
-        self.crawler.stop()
-
-    def crawl(self, phrase):
-        p = Process(target=self._crawl, args=[phrase])
-        p.start()
-        p.join()
-
-
-def google_crawl(phrase):
-    crawler = GoogleCrawlerScript()
-    crawler.crawl(phrase)
+#
+# class GoogleCrawlerScript:
+#
+#     def __init__(self):
+#         self.crawler = CrawlerProcess(Settings())
+#         # self.phrase = phrase
+#
+#     def _crawl(self, phrase):
+#         self.crawler.crawl(GoogleImageSpider(phrase))
+#         self.crawler.start()
+#         self.crawler.stop()
+#
+#     def crawl(self, phrase):
+#         p = Process(target=self._crawl, args=[phrase])
+#         p.start()
+#         p.join()
+#
+#
+# def google_crawl(phrase):
+#     crawler = GoogleCrawlerScript()
+#     crawler.crawl(phrase)
