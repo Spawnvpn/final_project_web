@@ -24,8 +24,8 @@ class WebBotPipeline:
 
     def process_item(self, item, spider):
         # try:
-        self.conn.execute('insert into image_aggregator_searchhistory(image_url, small_image, search_engine, search_state) values(?, ?, ?, ?)',
-                          (item.get('image_url'), item.get('image'), item.get('search_engine'), '1'))
+        self.conn.execute('insert into image_aggregator_searchhistory(image_url, small_image, search_engine, search_state, origin) values(?, ?, ?, ?, ?)',
+                          (item.get('image_url'), item.get('image'), item.get('search_engine'), '1', item.get('origin')))
         # except:
         #     print('Failed to insert item: ' + item['image_url'])
         return item

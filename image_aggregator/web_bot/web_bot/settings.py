@@ -7,7 +7,7 @@
 #
 
 BOT_NAME = 'web_bot'
-BOT_VERSION = '1.0'
+# BOT_VERSION = '1.0'
 
 SPIDER_MODULES = ['web_bot.spiders']
 NEWSPIDER_MODULE = 'web_bot.spiders'
@@ -133,11 +133,12 @@ USER_AGENT_LIST = [
 ]
 
 SPIDER_MIDDLEWARES = {
+
     # 'web_bot.middlewares.CustomSpiderMiddleware': 543,
 }
 
 DOWNLOADER_MIDDLEWARES = {
     'web_bot.middlewares.RandomUserAgentMiddleware': 400,
     # 'CheckIP.middlewares.ProxyMiddleware': 410,
-    'web_bot.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
 }

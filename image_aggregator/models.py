@@ -17,3 +17,4 @@ class SearchHistory(models.Model):
     image_url = models.CharField(max_length=2000, blank=True, null=True)
     small_image = models.CharField(max_length=2000, blank=True, null=True)
     search_engine = models.CharField(max_length=255, blank=True, null=True)
+    origin = models.CharField(max_length=200, blank=True, null=True)

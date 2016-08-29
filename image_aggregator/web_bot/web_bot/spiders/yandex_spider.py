@@ -1,5 +1,8 @@
 import json
 import scrapy
+# from scrapy.cmdline import execute
+# execute()
+from scrapy.shell import inspect_response
 
 
 class YandexImageSpider(scrapy.Spider):
@@ -18,25 +21,23 @@ class YandexImageSpider(scrapy.Spider):
 
     def get_links(self):
         if not self.req:
-            self.req = "cat"
-        start_urls = ['https://yandex.ua/images/search?text=' + self.req]
+            self.req = "ocean"
+        start_urls = ['https://yandex.ua/images/search?text=' + self.req + '&rdpass=1']
         return start_urls
 
     def parse(self, response):
         item = dict()
         # inspect_response(response, self)
-        elements = response.xpath('//div[contains(@class, "serp-list_type_search")]')
-        elements.extract()
+        elements = response.xpath('//*[contains(@class, "serp-item_group_search")]').xpath('./@data-bem').extract()
         for element in elements:
-            small_image = 'http:' + element.xpath('.//div/a/img/@src').extract()[0]
-            content = element.xpath('.//div/@data-bem').extract()[0]
-            content = json.loads(content)
+            content = json.loads(element)['serp-item']['preview']
+            content = content[0].get('url')
+            origin = json.loads(element)['serp-item']['snippet']['domain']
             self.logger.info(content)
-            content = content.get("serp-item")
-            content = content.get("preview")
-            content = content[0].get("url")
+            small_image = json.loads(element)['serp-item']['snippet']['url']
             image_url = content
             self.logger.info(content)
+            item['origin'] = origin
             item['image'] = small_image
             item['image_url'] = image_url
             item['search_engine'] = 'yandex.ua'
