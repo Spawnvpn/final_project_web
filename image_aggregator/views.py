@@ -1,40 +1,32 @@
-from django.shortcuts import render
-from image_aggregator.models import Task
-from scrapyd_api import ScrapydAPI
+from django.shortcuts import render, redirect
+from django.views.generic import ListView
+from image_aggregator.models import Result
+from scrapyd_control import SpiderManage
 
 
 def index(request):
-    return render(request, template_name='image_aggregator/aggregator.html')
+    return render(request, template_name='image_aggregator/index.html')
 
 
 def search_view(request):
-    API_URL = 'http://localhost:6800'
     keywords = request.GET.get('keywords')
-    if request.method == 'GET'and keywords:
+    if request.method == 'GET' and keywords:
+        manage = SpiderManage(keywords)
+        manage.initialize_spiders()
+        manage.run_spiders()
+        tasks_ids_list = manage.dump_tasks()
+        keywords = keywords.replace(' ', '+')
+        request.session['tasks_hashes'] = tasks_ids_list.values()
+        return redirect('/result/')
+    return render(request, template_name='image_aggregator/index.html')
 
-        google = ScrapydAPI(API_URL)
-        yandex = ScrapydAPI(API_URL)
-        instagram = ScrapydAPI(API_URL)
 
-        google_job_id = google.schedule('web_bot', 'yandeximagespider', kwargs=keywords)
-        yandex_job_id = yandex.schedule('web_bot', 'googleimagespider', kwargs=keywords)
-        instagram_job_id = instagram.schedule('web_bot', 'instagramimagespider', kwargs=keywords)
+class ImageListView(ListView):
+    model = Result
+    template_name = 'image_aggregator/image_list.html'
+    context_object_name = 'images_list'
 
-        Task.objects.create(
-            job=google_job_id,
-            keywords=keywords,
-            is_done=False,
-        )
-        Task.objects.create(
-            job=yandex_job_id,
-            keywords=keywords,
-            is_done=False,
-        )
-        Task.objects.create(
-            job=instagram_job_id,
-            keywords=keywords,
-            is_done=False,
-        )
-        print google_job_id, yandex_job_id, instagram_job_id
-
-    return render(request, template_name='image_aggregator/aggregator.html')
+    def get_queryset(self):
+        qs = super(ImageListView, self).get_queryset()
+        task_hashes = self.request.session.get("tasks_hashes", [])
+        return qs.filter(task__job__in=task_hashes, task__is_done=True)

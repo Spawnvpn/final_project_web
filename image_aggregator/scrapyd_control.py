@@ -1,17 +1,33 @@
+from image_aggregator.models import Task
 from scrapyd_api import ScrapydAPI
+from django.contrib.sessions.backends.db import SessionStore
 
 
 class SpiderManage(object):
+    API_URL = 'http://localhost:6800'
+    PROJECT = 'web_bot'
+
     def __init__(self, keywords):
-        self.API_URL = 'http://localhost:6800'
         self.keywords = keywords
+        self.spiders = None
+        self.api = None
+        self.id_dict = dict()
 
     def initialize_spiders(self):
-        google = ScrapydAPI(self.API_URL)
-        yandex = ScrapydAPI(self.API_URL)
-        instagram = ScrapydAPI(self.API_URL)
+        self.api = ScrapydAPI(self.API_URL)
+        self.spiders = self.api.list_spiders(self.PROJECT)
 
     def run_spiders(self):
-        google_job_id = google.schedule('web_bot', 'yandeximagespider', kwargs=self.keywords)
-        yandex_job_id = yandex.schedule('web_bot', 'googleimagespider', kwargs=self.keywords)
-        instagram_job_id = instagram.schedule('web_bot', 'instagramimagespider', kwargs=self.keywords)
+        for spider in self.spiders:
+            task_id = self.api.schedule(self.PROJECT, spider, kwargs=self.keywords)
+            self.id_dict[spider] = task_id
+
+    def dump_tasks(self):
+        for key, value in self.id_dict.items():
+            Task.objects.create(
+                job=value,
+                keywords=self.keywords,
+                is_done=False,
+                spider_name=key,
+            )
+        return self.id_dict

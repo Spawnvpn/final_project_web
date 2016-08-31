@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="container cont">
+        <div class="row">
+        {% if images_list %}
+            {% for image in images_list %}
+                    <div class="col-md-4">
+                        <div class="images">
+                            <a href="{{ image.image_url }}">
+                                <img class="img img-responsive" width="300" height="100" src="{{ image.image_url }}">
+                            </a>
+                         </div>
+                    </div>
+                {% if forloop.counter|divisibleby:"4" %}
+                    </div>
+                    <div class="row metablock">
+                {% endif %}
+            {% endfor %}
+        </div>
+            {% else %}
+            <h2>In process</h2>
+    {% endif %}
+    </div>
+{% endblock %}
