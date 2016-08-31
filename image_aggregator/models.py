@@ -1,20 +1,17 @@
 from django.db import models
 
 
-class SearchHistory(models.Model):
-    PROCESS = 0
-    HAVE_RESULTS = 1
-    DONE = 2
+class Task(models.Model):
 
-    STATE_CHOICES = (
-        (PROCESS, "Process"),
-        (HAVE_RESULTS, "Have results"),
-        (DONE, "Done"),
-    )
+    job = models.CharField(max_length=255)
+    keywords = models.CharField(max_length=255, blank=True, null=True)
+    is_done = models.IntegerField(default=False)
 
-    search_phrase = models.CharField(max_length=255, blank=True, null=True)
-    search_state = models.IntegerField(choices=STATE_CHOICES, default=PROCESS)
+
+class Result(models.Model):
+
+    task = models.ForeignKey(Task)
     image_url = models.CharField(max_length=2000, blank=True, null=True)
-    small_image = models.CharField(max_length=2000, blank=True, null=True)
+    small_image_url = models.CharField(max_length=2000, blank=True, null=True)
     search_engine = models.CharField(max_length=255, blank=True, null=True)
-    origin = models.CharField(max_length=200, blank=True, null=True)
+    origin_url = models.CharField(max_length=200, blank=True, null=True)

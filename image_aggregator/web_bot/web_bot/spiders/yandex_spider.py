@@ -7,11 +7,11 @@ from scrapy.shell import inspect_response
 
 class YandexImageSpider(scrapy.Spider):
 
-    def __init__(self, req=None, **kwargs):
-        super(YandexImageSpider, self).__init__(**kwargs)
-        self.req = req
+    def __init__(self, *args, **kwargs):
+        super(YandexImageSpider, self).__init__(*args, **kwargs)
+        self.keywords = kwargs.get('kwargs')
+        self.job = kwargs.get('_job')
     name = 'yandeximagespider'
-    # req = 'cats'
 
     def start_requests(self):
         links = self.get_links()
@@ -20,23 +20,23 @@ class YandexImageSpider(scrapy.Spider):
             yield self.make_requests_from_url(link)
 
     def get_links(self):
-        if not self.req:
-            self.req = "ocean"
-        start_urls = ['https://yandex.ua/images/search?text=' + self.req + '&rdpass=1']
+        if not self.keywords:
+            self.keywords = ""
+        self.keywords = self.keywords.replace(' ', '+')
+        start_urls = ['https://yandex.ua/images/search?text=%s&rdpass=1' % self.keywords]
         return start_urls
 
     def parse(self, response):
         item = dict()
+        item['job_id'] = self.job
         # inspect_response(response, self)
         elements = response.xpath('//*[contains(@class, "serp-item_group_search")]').xpath('./@data-bem').extract()
         for element in elements:
             content = json.loads(element)['serp-item']['preview']
             content = content[0].get('url')
             origin = json.loads(element)['serp-item']['snippet']['domain']
-            self.logger.info(content)
             small_image = json.loads(element)['serp-item']['snippet']['url']
             image_url = content
-            self.logger.info(content)
             item['origin'] = origin
             item['image'] = small_image
             item['image_url'] = image_url

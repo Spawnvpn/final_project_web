@@ -1,18 +1,16 @@
 import json
 import scrapy
 from scrapy.shell import inspect_response
-from multiprocessing import Process
-from scrapy.crawler import CrawlerProcess, CrawlerRunner
-from scrapy.settings import Settings
 
 
 class GoogleImageSpider(scrapy.Spider):
 
-    def __init__(self, req=None, **kwargs):
-        super(GoogleImageSpider, self).__init__(**kwargs)
-        self.req = req
+    def __init__(self, *args, **kwargs):
+        super(GoogleImageSpider, self).__init__(*args, **kwargs)
+        self.keywords = kwargs.get('kwargs')
+        self.job = kwargs.get('_job')
+        self.logger.info(self.keywords)
     name = 'googleimagespider'
-    # req = 'cats'
 
     def start_requests(self):
         links = self.get_links()
@@ -21,63 +19,23 @@ class GoogleImageSpider(scrapy.Spider):
             yield self.make_requests_from_url(link)
 
     def get_links(self):
-        if not self.req:
-            self.req = "cat"
-        start_urls = ['https://www.google.com.ua/search?q=' + self.req + '&source=lnms&tbm=isch']
+        if not self.keywords:
+            self.keywords = "cats"
+        self.keywords = self.keywords.replace(' ', '+')
+        start_urls = ['https://www.google.com.ua/search?q=%s&source=lnms&tbm=isch' % self.keywords]
         return start_urls
 
     def parse(self, response):
         item = dict()
+        item['job_id'] = self.job
         # inspect_response(response, self)
-        # elements = response.xpath('//*[@id="rg_s"]') # for js
-        elements = response.xpath('//*[@id="ires"]/table[@class="images_table"]')
-        elements.extract()
-        for r in range(1, 6):
-            for d in range(1, 5):
-                for pic in response.xpath('//*[@id="ires"]/table/tr[' + str(r) + ']/td[' + str(d) + ']'):
-                    small_image = pic.xpath('.//a/img/@src').extract()[0]
-                    content = pic.xpath('.//a/@href').extract()[0][7:]
-                    superflous = content.find('&')
-                    content = content[:superflous]
-                    self.logger.info(pic)
-                    item['image'] = small_image
-                    item['image_url'] = content
-                    item['search_engine'] = 'google.com'
-                    yield item
-
-        # """For js page"""
-        # for element in elements:
-        #     self.logger.info(element)
-        #     content = elements.xpath('./td/a/@href')
-            # content = element.xpath('.//*[contains(@class, "rg_di")]/div[@class="rg_meta"]/text()').extract()[0]
-            # content = json.loads(content)
-            # image_url = content.get("ou")
-            # self.logger.info(content)
-            # for item
-            # item['image_url'] = image_url
-            # item['search_engine'] = 'Google'
-            # yield {
-            #     item
-            # }
-
-#
-# class GoogleCrawlerScript:
-#
-#     def __init__(self):
-#         self.crawler = CrawlerProcess(Settings())
-#         # self.phrase = phrase
-#
-#     def _crawl(self, phrase):
-#         self.crawler.crawl(GoogleImageSpider(phrase))
-#         self.crawler.start()
-#         self.crawler.stop()
-#
-#     def crawl(self, phrase):
-#         p = Process(target=self._crawl, args=[phrase])
-#         p.start()
-#         p.join()
-#
-#
-# def google_crawl(phrase):
-#     crawler = GoogleCrawlerScript()
-#     crawler.crawl(phrase)
+        elements = response.xpath('//*[@id="rg_s"]').xpath('.//*[@class="rg_meta"]/text()').extract()
+        for element in elements:
+            content = json.loads(element)
+            image_url = content.get("ou")
+            self.logger.info(content)
+            # item['image'] = small_image
+            item['image_url'] = image_url
+            item['search_engine'] = 'google.com'
+            self.logger.info(item)
+            yield item

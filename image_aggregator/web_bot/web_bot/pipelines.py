@@ -24,8 +24,12 @@ class WebBotPipeline:
 
     def process_item(self, item, spider):
         # try:
-        self.conn.execute('insert into image_aggregator_searchhistory(image_url, small_image, search_engine, search_state, origin) values(?, ?, ?, ?, ?)',
-                          (item.get('image_url'), item.get('image'), item.get('search_engine'), '1', item.get('origin')))
+        job_id = item.get('job_id')
+        task_id = self.conn.execute('SELECT id FROM image_aggregator_task WHERE job="%s"' % job_id)
+        task_id = task_id.fetchone()
+        self.conn.execute('insert into image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id) values(?, ?, ?, ?, ?)',
+                          (item.get('image_url'), item.get('image'), item.get('search_engine'), item.get('origin'), task_id[0]))
+        self.conn.execute('UPDATE image_aggregator_task SET is_done=1 WHERE job="%s"' % job_id)
         # except:
         #     print('Failed to insert item: ' + item['image_url'])
         return item
