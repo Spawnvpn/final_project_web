@@ -1,8 +1,8 @@
 import json
 import scrapy
-# from scrapy.cmdline import execute
-# execute()
-from scrapy.shell import inspect_response
+
+from scrapy.loader import ItemLoader
+from web_bot.items import ImageItem
 
 
 class YandexImageSpider(scrapy.Spider):
@@ -27,18 +27,18 @@ class YandexImageSpider(scrapy.Spider):
         return start_urls
 
     def parse(self, response):
-        item = dict()
-        item['job_id'] = self.job
-        # inspect_response(response, self)
+        item_loader = ItemLoader(item=ImageItem(), response=response)
+        image_list = list()
+        # small_image_list = list()
+        # origin_list = list()
         elements = response.xpath('//*[contains(@class, "serp-item_group_search")]').xpath('./@data-bem').extract()
         for element in elements:
             content = json.loads(element)['serp-item']['preview']
-            content = content[0].get('url')
-            origin = json.loads(element)['serp-item']['snippet']['domain']
-            small_image = json.loads(element)['serp-item']['snippet']['url']
-            image_url = content
-            item['origin'] = origin
-            item['image'] = small_image
-            item['image_url'] = image_url
-            item['search_engine'] = 'yandex.ua'
-            yield item
+            image_list.append(content[0].get('url'))
+            # origin_list.append(json.loads(element)['serp-item']['snippet']['domain'])
+            # small_image_list.append(json.loads(element)['serp-item']['snippet']['url'])
+        item_loader.add_value('image_url', image_list)
+        # item_loader.add_value('small_images', small_image_list)
+        item_loader.add_value('job_id', self.job)
+        # item_loader.add_value('origin', origin_list)
+        return item_loader.load_item()

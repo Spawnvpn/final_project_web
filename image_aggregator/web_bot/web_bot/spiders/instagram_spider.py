@@ -1,6 +1,7 @@
 import scrapy
 import json
-from scrapy.shell import inspect_response
+from scrapy.loader import ItemLoader
+from web_bot.items import ImageItem
 
 
 class InstagramImageSpider(scrapy.Spider):
@@ -25,14 +26,12 @@ class InstagramImageSpider(scrapy.Spider):
         return start_urls
 
     def parse(self, response):
-        item = dict()
-        item['job_id'] = self.job
-        # inspect_response(response, self)
+        item_loader = ItemLoader(item=ImageItem(), response=response)
+        image_list = list()
         elements = response.xpath('//p/text()').extract()[0]
         elements = json.loads(elements)['tag']['media']['nodes']
-        # self.logger.info(elements)
         for element in elements:
-            image_url = element['thumbnail_src']
-            item['image_url'] = image_url
-            item['search_engine'] = 'instagram'
-            yield item
+            image_list.append(element['thumbnail_src'])
+        item_loader.add_value('image_url', image_list)
+        item_loader.add_value('job_id', self.job)
+        return item_loader.load_item()

@@ -7,8 +7,10 @@ from scrapy.item import Item, Field
 
 
 class ImageItem(Item):
-    # define the fields for your item here like:
-    # name = Field()
+    task = Field()
     image_url = Field()
-    engine_url = Field()
+    small_image_url = Field()
+    search_engine = Field()
+    origin_url = Field()
+    job_id = Field()
 

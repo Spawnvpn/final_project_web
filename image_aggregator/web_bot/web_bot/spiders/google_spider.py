@@ -1,6 +1,7 @@
 import json
 import scrapy
-from scrapy.shell import inspect_response
+from scrapy.loader import ItemLoader
+from web_bot.items import ImageItem
 
 
 class GoogleImageSpider(scrapy.Spider):
@@ -26,16 +27,13 @@ class GoogleImageSpider(scrapy.Spider):
         return start_urls
 
     def parse(self, response):
-        item = dict()
-        item['job_id'] = self.job
-        # inspect_response(response, self)
+        item_loader = ItemLoader(item=ImageItem(), response=response)
+        image_list = list()
         elements = response.xpath('//*[@id="rg_s"]').xpath('.//*[@class="rg_meta"]/text()').extract()
         for element in elements:
             content = json.loads(element)
-            image_url = content.get("ou")
-            self.logger.info(content)
-            # item['image'] = small_image
-            item['image_url'] = image_url
-            item['search_engine'] = 'google.com'
-            self.logger.info(item)
-            yield item
+            image_list.append(content.get("ou"))
+
+        item_loader.add_value('image_url', image_list)
+        item_loader.add_value('job_id', self.job)
+        return item_loader.load_item()
