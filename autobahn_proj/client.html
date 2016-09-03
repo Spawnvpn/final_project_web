@@ -1,8 +1,4 @@
-{% extends 'base.html' %}
-{% load staticfiles %}
-
-{% block content %}
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
    <head>
       <script type="text/javascript">
@@ -16,16 +12,12 @@
 
             socket.onopen = function() {
                console.log("Connected!");
-               socket.send(getCookie('csrftoken'));
                isopen = true;
             }
 
             socket.onmessage = function(e) {
                if (typeof e.data == "string") {
                   console.log("Text message received: " + e.data);
-                   if (e.data == "DONE") {
-
-                   }
                } else {
                   var arr = new Uint8Array(e.data);
                   var hex = '';
@@ -45,20 +37,24 @@
 
          function sendText() {
             if (isopen) {
-               socket.send(getCookie('csrftoken'));
+               socket.send(document.cookie);
                console.log("Text message sent.");
             } else {
                console.log("Connection not opened.")
             }
          };
 
-         function getCookie(name) {
-            var matches = document.cookie.match(new RegExp(
-                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-            ));
-            return matches ? decodeURIComponent(matches[1]) : undefined;
+         function sendBinary() {
+            if (isopen) {
+               var buf = new ArrayBuffer(32);
+               var arr = new Uint8Array(buf);
+               for (i = 0; i < arr.length; ++i) arr[i] = i;
+               socket.send(buf);
+               console.log("Binary message sent.");
+            } else {
+               console.log("Connection not opened.")
+            }
          };
-
       </script>
    </head>
    <body>
@@ -67,26 +63,3 @@
       <button onclick='sendBinary();'>Send Binary Message</button>
    </body>
 </html>
-
-    <div class="container cont">
-        <div class="row">
-        {% if images_list %}
-            {% for image in images_list %}
-                    <div class="col-md-4">
-                        <div class="images">
-                            <a href="{{ image.image_url }}">
-                                <img class="img img-responsive" width="300" height="100" src="{{ image.image_url }}">
-                            </a>
-                         </div>
-                    </div>
-                {% if forloop.counter|divisibleby:"4" %}
-                    </div>
-                    <div class="row metablock">
-                {% endif %}
-            {% endfor %}
-        </div>
-            {% else %}
-            <h2>In process</h2>
-    {% endif %}
-    </div>
-{% endblock %}

@@ -1,13 +1,11 @@
-# Define your item pipelines here
-#
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/topics/item-pipeline.html
 # Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/topics/item-pipeline.html
+
 
 import sqlite3
+
+import redis
 from os import path
 
 from scrapy import signals
@@ -26,12 +24,15 @@ class WebBotPipeline:
         job_id = item.get('job_id')
         task_id = self.conn.execute('SELECT id FROM image_aggregator_task WHERE job="%s"' % job_id[0])
         task_id = task_id.fetchone()
-        query_string = 'insert into image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id) values '
+        query_string = 'INSERT INTO image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id) VALUES '
         for image in zip(item['image_url']):
             query_string += '("%s", "%s", "%s", "%s", "%s"),' % (image[0], item.get('small_images'), spider.name, item.get('origin'), task_id[0])
         query = query_string[:-1]
         self.conn.execute(query)
         self.conn.execute('UPDATE image_aggregator_task SET is_done=1 WHERE job="%s"' % job_id[0])
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r.set('%s' % item.get('csrftoken')[0] + spider.name, '%s' % spider.name)
+        r.expire('%s' % item.get('csrftoken')[0] + spider.name, 30)
         return item
 
     def initialize(self):

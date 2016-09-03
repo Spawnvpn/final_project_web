@@ -8,9 +8,12 @@ class InstagramImageSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(InstagramImageSpider, self).__init__(*args, **kwargs)
-        self.keywords = kwargs.get('kwargs')
+        self.keywords = kwargs.get('keywords')
+        self.csrftoken = kwargs.get('csrftoken')
         self.job = kwargs.get('_job')
-    name = 'instagramimagespider'
+        self.logger.info(self.keywords)
+        self.logger.info(self.csrftoken)
+    name = 'instagram'
 
     def start_requests(self):
         links = self.get_links()
@@ -34,4 +37,5 @@ class InstagramImageSpider(scrapy.Spider):
             image_list.append(element['thumbnail_src'])
         item_loader.add_value('image_url', image_list)
         item_loader.add_value('job_id', self.job)
+        item_loader.add_value('csrftoken', self.csrftoken)
         return item_loader.load_item()

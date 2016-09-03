@@ -8,10 +8,12 @@ class GoogleImageSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(GoogleImageSpider, self).__init__(*args, **kwargs)
-        self.keywords = kwargs.get('kwargs')
+        self.keywords = kwargs.get('keywords')
+        self.csrftoken = kwargs.get('csrftoken')
         self.job = kwargs.get('_job')
         self.logger.info(self.keywords)
-    name = 'googleimagespider'
+        self.logger.info(self.csrftoken)
+    name = 'google'
 
     def start_requests(self):
         links = self.get_links()
@@ -36,4 +38,5 @@ class GoogleImageSpider(scrapy.Spider):
 
         item_loader.add_value('image_url', image_list)
         item_loader.add_value('job_id', self.job)
+        item_loader.add_value('csrftoken', self.csrftoken)
         return item_loader.load_item()

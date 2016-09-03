@@ -7,6 +7,7 @@ from scrapy.item import Item, Field
 
 
 class ImageItem(Item):
+    csrftoken = Field()
     task = Field()
     image_url = Field()
     small_image_url = Field()
