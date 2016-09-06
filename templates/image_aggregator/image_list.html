@@ -1,83 +1,22 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-
+{% load static %}
 {% block content %}
-    <!DOCTYPE html>
-<html>
-   <head>
-      <script type="text/javascript">
-         var socket = null;
-         var isopen = false;
-
-         window.onload = function() {
-
-            socket = new WebSocket("ws://127.0.0.1:9000");
-            socket.binaryType = "arraybuffer";
-
-            socket.onopen = function() {
-               console.log("Connected!");
-               socket.send(getCookie('csrftoken'));
-               isopen = true;
-            }
-
-            socket.onmessage = function(e) {
-               if (typeof e.data == "string") {
-                  console.log("Text message received: " + e.data);
-                   if (e.data == "DONE") {
-
-                   }
-               } else {
-                  var arr = new Uint8Array(e.data);
-                  var hex = '';
-                  for (var i = 0; i < arr.length; i++) {
-                     hex += ('00' + arr[i].toString(16)).substr(-2);
-                  }
-                  console.log("Binary message received: " + hex);
-               }
-            }
-
-            socket.onclose = function(e) {
-               console.log("Connection closed.");
-               socket = null;
-               isopen = false;
-            }
-         };
-
-         function sendText() {
-            if (isopen) {
-               socket.send(getCookie('csrftoken'));
-               console.log("Text message sent.");
-            } else {
-               console.log("Connection not opened.")
-            }
-         };
-
-         function getCookie(name) {
-            var matches = document.cookie.match(new RegExp(
-                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-            ));
-            return matches ? decodeURIComponent(matches[1]) : undefined;
-         };
-
-      </script>
-   </head>
-   <body>
-      <p>Open your browser's JavaScript console to see what's happening (hit F12).</p>
-      <button onclick='sendText();'>Send Text Message</button>
-      <button onclick='sendBinary();'>Send Binary Message</button>
-   </body>
-</html>
 
     <div class="container cont">
         <div class="row">
         {% if images_list %}
             {% for image in images_list %}
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="images">
                             <a href="{{ image.image_url }}">
-                                <img class="img img-responsive" width="300" height="100" src="{{ image.image_url }}">
+                                <img class="img img-responsive" width="300" height="200" src="{{ image.small_image_url }}" alt="Responsive image">
                             </a>
                          </div>
+                        <div class="well well-sm">
+                            <p>Search engine: {{ image.search_engine }}</p>
+                            <p>Origin url: {{ image.origin_url }}</p>
+                        </div>
                     </div>
                 {% if forloop.counter|divisibleby:"4" %}
                     </div>
@@ -89,4 +28,30 @@
             <h2>In process</h2>
     {% endif %}
     </div>
+        {% if is_paginated %}
+            <nav aria-label="Page navigation">
+  <ul class="pagination">
+    <li class="page-item">
+        {% if page_obj.has_previous %}
+            <a class="page-link" href="/result/page/{{ page_obj.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+            </a>
+        {% endif %}
+    </li>
+  <li class="page-item"><a class="page-link" href="/result/page/1">First</a></li>
+    <li class="page-item"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
+
+  <li class="page-item"><a class="page-link" href="/result/page/{{ page_obj.paginator.num_pages }}">Last</a></li>
+    <li class="page-item">
+        {% if page_obj.has_next %}
+      <a class="page-link" href="/result/page/{{ page_obj.next_page_number }}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+        {% endif %}
+    </li>
+  </ul>
+</nav>
+ {% endif %}
 {% endblock %}

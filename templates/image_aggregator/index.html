@@ -1,11 +1,27 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-    
-<form  class="navbar-form navbar-left" role="search" action="search/" method="get" accept-charset="utf-8">
+
+<head>
+    <script>
+        document.getElementById('search-form').style.display='none';
+        function displayForm() {
+            document.getElementById('jumbo-form').style.display='inline';
+            document.getElementById('jumbo-button').style.display='none';
+        }
+    </script>
+</head>
+
+<div class="jumbotron">
+  <h1>Welcome!</h1>
+  <p>This is a simple application that searches for images in services: Google, Yandex and Instagram.</p>
+  <p><a id="jumbo-button" class="btn btn-primary btn-lg" onclick="displayForm()" role="button">Try it!</a></p>
+<form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">{% csrf_token %}
         <div class="form-group">
             <input class="form-control" name="keywords" type="text" placeholder="Search">
         </div>
-    <button class="btn btn-default" type="submit">Enter</button>
+    <button class="btn btn-default" type="submit" onclick="document.cookie = $('#jumbo-form').serialize()">Enter</button>
 </form>
+</div>
+
 {% endblock %}

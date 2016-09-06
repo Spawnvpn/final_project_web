@@ -1,0 +1,82 @@
+body {
+    background: white;
+}
+
+.cont {
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0px 0px 3px 2px #e6e6e6;
+}
+
+.col-md-3 {
+    padding-top: 20px;
+}
+
+#jumbo-form {
+    display: none;
+    margin-left: -30px;
+
+}
+
+.navbar {
+    height: 50px;
+}
+
+#search-form {
+    margin-top: -4px;
+}
+
+#jumbo-button {
+    color: white;
+}
+
+#link {
+    display: none;
+}
+
+#result {
+    cursor: pointer;
+}
+
+.form-control {
+    width: 400px !important;
+    margin-left: 15px;
+}
+
+.images {
+    overflow:hidden;
+    position: relative;
+    top: 100px;
+    left: 48%;
+    max-height: 150px;
+    min-height: 100px;
+    transform: translate(-50%, -50%);
+    margin-bottom: 10px;
+    /*border: 1px solid #b2b2b2 3;*/
+    box-shadow: 0px 0px 3px 2px #e6e6e6;
+
+}
+
+.well {
+    margin-top: 24px;
+    margin-bottom: 0px;
+    margin-left: -5px;
+    width: 255px;
+    font-size: 11pt;
+    max-height: 100px;
+}
+
+img {
+  display: inline-block;
+  height: auto;
+  max-width: 100%;
+
+}
+
+#google-error, #yandex-error, #instagram-error {
+    display: none;
+}
+
+#google-success, #yandex-success, #instagram-success {
+    display: none;
+}

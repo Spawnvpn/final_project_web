@@ -24,6 +24,7 @@
 #
 ###############################################################################
 import redis as redis
+from time import sleep
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
@@ -38,15 +39,41 @@ class MyServerProtocol(WebSocketServerProtocol):
         print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
-
-        print("message received: {0}".format(payload.decode('utf8')))
+        i = 0
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        while r.get(payload + b'google').decode() != 'google' and \
-              r.get(payload + b'yandex').decode() != 'yandex' and \
-              r.get(payload + b'instagram').decode() != 'instagram':
-            asyncio.sleep(1)
+        google = False
+        yandex = False
+        instagram = False
+
+        payload = str(payload)
+        if r'\xd' in payload:
+            index = payload.find('=')
+            part = payload[index:].replace(r'\x', '%').upper()
+            payload = payload[2:index] + part[:-1]
+        else:
+            payload = payload[2:-1]
+
+        while not google or not yandex or not instagram:
+            google = r.get(payload + 'Google') == b'Google'
+            yandex = r.get(payload + 'Yandex') == b'Yandex'
+            instagram = r.get(payload + 'Instagram') == b'Instagram'
+
+            self.sendMessage(bytes("Google %s" % google, encoding='utf-8'), isBinary)
+            self.sendMessage(bytes("Yandex %s" % yandex, encoding='utf-8'), isBinary)
+            self.sendMessage(bytes("Instagram %s" % instagram, encoding='utf-8'), isBinary)
+            if i >= 30:
+                if not google:
+                    self.sendMessage(b'google-error')
+                if not yandex:
+                    self.sendMessage(b'yandex-error')
+                if not instagram:
+                    self.sendMessage(b'instagram-error')
+                break
+            sleep(1)
+            i += 1
+        self.sendMessage(b'DONE')
+
         # echo back message verbatim
-        self.sendMessage(b"DONE", isBinary)
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))

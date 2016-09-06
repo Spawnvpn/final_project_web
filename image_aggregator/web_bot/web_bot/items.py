@@ -14,4 +14,5 @@ class ImageItem(Item):
     search_engine = Field()
     origin_url = Field()
     job_id = Field()
+    keywords = Field()
 
