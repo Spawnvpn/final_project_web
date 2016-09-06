@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,11 +39,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 'djkombu',
+    'raven.contrib.django.raven_compat',
     # 'djcelery',
 
     'image_aggregator',
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,5 +149,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static",),
     ]
 
+RAVEN_CONFIG = {
+    'dsn': 'https://e0468bfe03ae4561831c8c1f69a78092:836f08bd7cff43a6870a604052b15cf2@sentry.io/97130',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.os.path.dirname(os.path.abspath(__file__)),
+}
 
 # BROKER_URL = 'django://'

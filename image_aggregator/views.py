@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from image_aggregator.models import Result
 from scrapyd_control import SpiderManage
+from raven.contrib.django.raven_compat.models import client
 
 
 def index(request):
@@ -11,7 +12,6 @@ def index(request):
 def search_view(request):
     keywords = request.GET.get('keywords')
     request.session['keywords'] = keywords
-    # user_ip = request.META.get('REMOTE_ADDR')
     csrftoken = request.COOKIES.get('csrfmiddlewaretoken')
     if request.method == 'GET' and keywords:
         manage = SpiderManage(keywords, csrftoken)
@@ -21,8 +21,6 @@ def search_view(request):
         request.session['tasks_hashes'] = tasks_ids_list.values()
         return redirect('/process/', kwargs=keywords)
     return render(request, template_name='image_aggregator/index.html')
-# request.META.get('REMOTE_ADDR')
-# request.session._session_key
 
 
 def process_view(request):

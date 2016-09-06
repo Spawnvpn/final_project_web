@@ -142,3 +142,10 @@ DOWNLOADER_MIDDLEWARES = {
     # 'CheckIP.middlewares.ProxyMiddleware': 410,
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
 }
+
+LOG_ENABLED = True
+
+SENTRY_DSN = 'https://e7f8c5f4b5ea498396243116f4a11338:ad9c3ae05bbe4b1ba0fb084de04328d0@sentry.io/97148'
+EXTENSIONS = {
+      "scrapy_sentry.extensions.Errors": 10,
+  }

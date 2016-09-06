@@ -46,6 +46,7 @@ class MyServerProtocol(WebSocketServerProtocol):
         instagram = False
 
         payload = str(payload)
+        print(payload)
         if r'\xd' in payload:
             index = payload.find('=')
             part = payload[index:].replace(r'\x', '%').upper()
