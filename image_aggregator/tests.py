@@ -1,4 +1,8 @@
 import unittest
+from django.test import TestCase
+from image_aggregator.models import Result, Task
+from image_aggregator.scrapyd_control import SpiderManage, ScrapydAPI2
+from mock import Mock, patch
 from django.urls import reverse
 from django.test.client import RequestFactory, Client
 import views
@@ -30,10 +34,15 @@ class IndexTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_image_list_view(self):
+        task = Task.objects.create(is_done=True, job=123)
+        Result.objects.create(image_url='bla_bla', small_image_url='small_bla', search_engine='kek', origin_url='lel', task=task)
+        session = self.client.session
+        session['tasks_hashes'] = [123]
+        session.save()
         url = reverse('image_list')
         response = self.client.get(url)
 
-        self.assertEqual(str(response.context['images_list']), '<QuerySet []>')
+        self.assertEqual(response.context['images_list'][0].search_engine, 'kek')
 
 
 if __name__ == '__main__':
