@@ -2,14 +2,20 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from image_aggregator.models import Result
 from scrapyd_control import SpiderManage
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 def index(request):
+    log.info('Client: ' + request.META.get('REMOTE_ADDR') + ' get index')
     return render(request, template_name='image_aggregator/index.html')
 
 
 def search_view(request):
     keywords = request.GET.get('keywords')
+    log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
     request.session['keywords'] = keywords
     csrftoken = request.COOKIES.get('csrfmiddlewaretoken')
     if request.method == 'GET' and keywords:
