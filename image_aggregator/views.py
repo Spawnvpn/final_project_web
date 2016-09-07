@@ -9,11 +9,17 @@ log = logging.getLogger(__name__)
 
 
 def index(request):
+    """
+    :returns template with main page.
+    """
     log.info('Client: ' + request.META.get('REMOTE_ADDR') + ' get index')
     return render(request, template_name='image_aggregator/index.html')
 
 
 def search_view(request):
+    """
+    Takes the desired keywords and creates tasks of spiders.
+    """
     keywords = request.GET.get('keywords')
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
     request.session['keywords'] = keywords
@@ -29,11 +35,17 @@ def search_view(request):
 
 
 def process_view(request):
+    """
+    Render the template with the performance of tasks.
+    """
     if request.method == 'GET':
         return render(request, template_name='image_aggregator/process.html')
 
 
 class ImageListView(ListView):
+    """
+    :returns template with image list if queryset with images exists.
+    """
     model = Result
     template_name = 'image_aggregator/image_list.html'
     context_object_name = 'images_list'

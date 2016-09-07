@@ -50,7 +50,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
         payload = str(payload)
         print(payload)
-        if r'\xd' in payload:
+        if r'\xd' in payload:  # if user entered cyrillic keywords they will be formatted in a simple byte literals
             try:
                 index = payload.find('=')
                 part = payload[index:].replace(r'\x', '%').upper()
@@ -60,15 +60,15 @@ class MyServerProtocol(WebSocketServerProtocol):
         else:
             payload = payload[2:-1]
 
-        while not google or not yandex or not instagram:
+        while not google or not yandex or not instagram:  # requests message that the task is executed from the Redis
             google = r.get(payload + 'Google') == b'Google'
             yandex = r.get(payload + 'Yandex') == b'Yandex'
             instagram = r.get(payload + 'Instagram') == b'Instagram'
 
-            self.sendMessage(bytes("Google %s" % google, encoding='utf-8'), isBinary)
+            self.sendMessage(bytes("Google %s" % google, encoding='utf-8'), isBinary)  # sends a message to the client about the status of the task.
             self.sendMessage(bytes("Yandex %s" % yandex, encoding='utf-8'), isBinary)
             self.sendMessage(bytes("Instagram %s" % instagram, encoding='utf-8'), isBinary)
-            if i >= 30:
+            if i >= 30:  # if the job is not be executed, sends an error to the client
                 if not google:
                     self.sendMessage(b'google-error')
                 if not yandex:

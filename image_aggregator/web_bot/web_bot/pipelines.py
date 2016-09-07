@@ -26,7 +26,7 @@ class WebBotPipeline:
         task_id = task_id.fetchone()
         query_string = 'INSERT INTO image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id, relevance) VALUES '
         relevance = 1
-        # print len(item['image_url'])
+
         try:
             for big_image, small_image, origin in zip(item['image_url'], item['small_image_url'], item['origin_url']):
                 query_string += '("%s", "%s", "%s", "%s", "%s", "%s"),' % (big_image, small_image, spider.name, origin, task_id[0], relevance)

@@ -5,6 +5,9 @@ from raven.contrib.django.raven_compat.models import client
 
 
 class SpiderManage(object):
+    """
+    Provides methods for working with ScrapydAPI.
+    """
     API_URL = 'http://localhost:6800'
     PROJECT = 'web_bot'
 
@@ -16,6 +19,9 @@ class SpiderManage(object):
         self.id_dict = dict()
 
     def initialize_spiders(self):
+        """
+        Initializes spiders and returns them to the list :self.spiders
+        """
         self.api = ScrapydAPI2(self.API_URL)
         try:
             self.spiders = self.api.list_spiders(self.PROJECT)
@@ -23,6 +29,10 @@ class SpiderManage(object):
             client.captureException()
 
     def run_spiders(self):
+        """
+        Iterates through the list with the spiders, creating a task schedule for scrapy.
+        Each new schedule returns hash id of task in :task_id.
+        """
         for spider in self.spiders:
             try:
                 task_id = self.api.schedule(self.PROJECT, spider, kwargs={'keywords': self.keywords, 'csrftoken': self.csrftoken})
@@ -31,6 +41,10 @@ class SpiderManage(object):
                 client.captureException()
 
     def dump_tasks(self):
+        """
+        Saves the task for each spider in the database and
+        :returns self.id_dict where key=spider name, value=hash id of spider.
+        """
         for key, value in self.id_dict.items():
             try:
                 Task.objects.create(
