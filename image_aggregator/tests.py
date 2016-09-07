@@ -1,8 +1,5 @@
 import unittest
-from django.test import TestCase
 from image_aggregator.models import Result, Task
-from image_aggregator.scrapyd_control import SpiderManage, ScrapydAPI2
-from mock import Mock, patch
 from django.urls import reverse
 from django.test.client import RequestFactory, Client
 import views

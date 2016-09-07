@@ -5,6 +5,7 @@ project.egg-info/dependency_links.txt
 project.egg-info/entry_points.txt
 project.egg-info/top_level.txt
 web_bot/__init__.py
+web_bot/alert.py
 web_bot/items.py
 web_bot/middlewares.py
 web_bot/pipelines.py

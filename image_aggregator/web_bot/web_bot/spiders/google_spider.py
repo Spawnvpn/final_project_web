@@ -1,9 +1,7 @@
 import json
 import scrapy
-from scrapy.http.request import Request
 from scrapy.loader import ItemLoader
 from web_bot.items import ImageItem
-import copy
 
 
 class GoogleImageSpider(scrapy.Spider):

@@ -1,13 +1,8 @@
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/topics/item-pipeline.html
-# Define your item pipelines here
-
-
 import sqlite3
-
+from settings import SENTRY_DSN
 import redis
 from os import path
-
+from raven import Client
 from scrapy import signals
 from scrapy.xlib.pydispatch import dispatcher
 
@@ -19,6 +14,7 @@ class WebBotPipeline:
         self.conn = None
         self.buff_item = None
         self.spider_name = None
+        self.client = Client(SENTRY_DSN)
         dispatcher.connect(self.initialize, signals.engine_started)
         dispatcher.connect(self.finalize, signals.engine_stopped)
 
@@ -31,9 +27,12 @@ class WebBotPipeline:
         query_string = 'INSERT INTO image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id, relevance) VALUES '
         relevance = 1
         # print len(item['image_url'])
-        for big_image, small_image, origin in zip(item['image_url'], item['small_image_url'], item['origin_url']):
-            query_string += '("%s", "%s", "%s", "%s", "%s", "%s"),' % (big_image, small_image, spider.name, origin, task_id[0], relevance)
-            relevance += 1
+        try:
+            for big_image, small_image, origin in zip(item['image_url'], item['small_image_url'], item['origin_url']):
+                query_string += '("%s", "%s", "%s", "%s", "%s", "%s"),' % (big_image, small_image, spider.name, origin, task_id[0], relevance)
+                relevance += 1
+        except:
+            self.client.captureException()
 
         query = query_string[:-1]
         self.conn.execute(query)

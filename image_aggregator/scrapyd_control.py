@@ -1,6 +1,7 @@
 from image_aggregator.models import Task
 from scrapyd_api import ScrapydAPI, constants
 from scrapyd_api.compat import iteritems
+from raven.contrib.django.raven_compat.models import client
 
 
 class SpiderManage(object):
@@ -16,21 +17,30 @@ class SpiderManage(object):
 
     def initialize_spiders(self):
         self.api = ScrapydAPI2(self.API_URL)
-        self.spiders = self.api.list_spiders(self.PROJECT)
+        try:
+            self.spiders = self.api.list_spiders(self.PROJECT)
+        except:
+            client.captureException()
 
     def run_spiders(self):
         for spider in self.spiders:
-            task_id = self.api.schedule(self.PROJECT, spider, kwargs={'keywords': self.keywords, 'csrftoken': self.csrftoken})
-            self.id_dict[spider] = task_id
+            try:
+                task_id = self.api.schedule(self.PROJECT, spider, kwargs={'keywords': self.keywords, 'csrftoken': self.csrftoken})
+                self.id_dict[spider] = task_id
+            except:
+                client.captureException()
 
     def dump_tasks(self):
         for key, value in self.id_dict.items():
-            Task.objects.create(
-                job=value,
-                keywords=self.keywords,
-                is_done=False,
-                spider_name=key,
-            )
+            try:
+                Task.objects.create(
+                    job=value,
+                    keywords=self.keywords,
+                    is_done=False,
+                    spider_name=key,
+                )
+            except:
+                client.captureException()
         return self.id_dict
 
 

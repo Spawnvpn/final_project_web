@@ -23,11 +23,14 @@
 # THE SOFTWARE.
 #
 ###############################################################################
-import redis as redis
+import redis
 from time import sleep
-
+import logging
+from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
+
+client = Client('https://8ff8d6c9c1e2413eb517774e481074c1:4a819bdfaa644649978440d6ee752545@sentry.io/97142')
 
 
 class MyServerProtocol(WebSocketServerProtocol):
@@ -48,9 +51,12 @@ class MyServerProtocol(WebSocketServerProtocol):
         payload = str(payload)
         print(payload)
         if r'\xd' in payload:
-            index = payload.find('=')
-            part = payload[index:].replace(r'\x', '%').upper()
-            payload = payload[2:index] + part[:-1]
+            try:
+                index = payload.find('=')
+                part = payload[index:].replace(r'\x', '%').upper()
+                payload = payload[2:index] + part[:-1]
+            except:
+                client.captureException()
         else:
             payload = payload[2:-1]
 

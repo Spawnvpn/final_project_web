@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from image_aggregator.models import Result
 from scrapyd_control import SpiderManage
-from raven.contrib.django.raven_compat.models import client
 
 
 def index(request):
