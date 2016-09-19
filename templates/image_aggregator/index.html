@@ -14,7 +14,22 @@
 
 <div class="jumbotron">
   <h1>Welcome!</h1>
-  <p>This is a simple application that searches for images in services: Google, Yandex and Instagram.</p>
+  <div class="panel panel-info history">
+    <div class="panel-body">
+    Recently searched
+    </div>
+  <div class="panel-footer">
+    {% for word in context %}
+        {% if forloop.counter|divisibleby:"3" %}
+              <div class="keyword">
+        {{ word.keywords }}<br>
+              </div>
+        {% endif %}
+    {% endfor %}
+  </div>
+</div>
+  <div class="panel panel-info history"></div>
+  <p>This is a simple application that searches for <br> images in services: Google, Yandex and Instagram.</p>
   <p><a id="jumbo-button" class="btn btn-primary btn-lg" onclick="displayForm()" role="button">Try it!</a></p>
 <form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">{% csrf_token %}
         <div class="form-group">

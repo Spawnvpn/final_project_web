@@ -43,7 +43,7 @@
                        document.getElementById(e.data.substring(0, index) + '-process').style.display='none'
                    }
                    if (e.data == "DONE") {
-                       document.getElementById('link').style.display='block'
+                       document.location.href = '/result/'
                    }
                } else {
                   var arr = new Uint8Array(e.data);

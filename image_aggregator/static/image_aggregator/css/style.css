@@ -80,3 +80,20 @@ img {
 #google-success, #yandex-success, #instagram-success {
     display: none;
 }
+
+.history {
+    float: right;
+    display: block;
+    margin-top: -120px;
+    max-width: 400px;
+    word-wrap: break-word;
+    color: #424242
+}
+
+.jumbotron {
+    height: 400px;
+}
+
+.keyword {
+    border-bottom: solid 1px #e0e0e0;
+}
