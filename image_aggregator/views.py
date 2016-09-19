@@ -1,4 +1,6 @@
+from datetime import datetime
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.core.cache import cache
@@ -24,11 +26,8 @@ def search_view(request):
     Takes the desired keywords and creates tasks of spiders.
     """
     keywords = request.GET.get('keywords')
-    if not cache.get(keywords):
-        cache.set(keywords, keywords, 3600)
-    else:
-        qs = Result.objects.all().filter(task__keywords=cache.get(keywords))
-        paginator = Paginator(qs, 12)
+    qs = Result.objects.filter(Q(life_expiration__lt=datetime.today()) | Q(keywords__icontains=keywords))
+    if qs:
         return render(request, template_name='image_aggregator/image_list.html', context={'images_list': qs})
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
     request.session['keywords'] = keywords

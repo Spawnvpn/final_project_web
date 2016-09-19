@@ -1,4 +1,9 @@
+from datetime import datetime
 from django.db import models
+
+
+def get_expiration():
+    return datetime.now().day + 1
 
 
 class Task(models.Model):
@@ -18,3 +23,4 @@ class Result(models.Model):
     search_engine = models.CharField(max_length=255, blank=True, null=True)
     origin_url = models.CharField(max_length=200, blank=True, null=True)
     relevance = models.PositiveIntegerField(blank=True, null=True)
+    life_expiration = models.DateTimeField(default=get_expiration)
