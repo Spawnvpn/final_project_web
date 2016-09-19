@@ -26,7 +26,7 @@ def search_view(request):
     Takes the desired keywords and creates tasks of spiders.
     """
     keywords = request.GET.get('keywords')
-    qs = Result.objects.filter(Q(life_expiration__lt=datetime.today()) | Q(keywords__icontains=keywords))
+    qs = Result.objects.filter(Q(life_expiration__lt=datetime.today()) & Q(task__keywords__icontains=keywords))
     if qs:
         return render(request, template_name='image_aggregator/image_list.html', context={'images_list': qs})
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
