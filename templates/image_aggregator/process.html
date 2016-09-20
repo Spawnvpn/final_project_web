@@ -17,7 +17,7 @@
 
             socket.onopen = function() {
                console.log("Connected!");
-               socket.send(getCookie('csrfmiddlewaretoken'));
+               socket.send(getCookie('task_hashes'));
                isopen = true;
             };
 
@@ -79,7 +79,7 @@
          }
       </script>
 
-    </head>
+   </head>
         <body>
             <div id="google-success" class="alert alert-success" role="alert">
                 <a href="#" class="alert-link">Google OK</a>
@@ -111,7 +111,6 @@
             <div id="link" class="alert alert-info" role="alert">
                 <a id="result" class="alert-link" onclick="window.location = '/result/'">Show results</a>
             </div>
-
    </body>
 </html>
 

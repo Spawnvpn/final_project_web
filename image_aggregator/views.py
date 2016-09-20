@@ -1,9 +1,12 @@
+import redis
 from django.core.paginator import Paginator
 from django.db.models.functions import datetime
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from image_aggregator.models import Result, Task
 from scrapyd_control import SpiderManage
+import json
+import uuid
 import logging
 
 
@@ -24,7 +27,7 @@ def search_view(request):
     Takes the desired keywords and creates tasks of spiders.
     """
     keywords = request.GET.get('keywords')
-
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
     qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__icontains=keywords)
     if qs:
         paginator = Paginator(qs, 12)
@@ -34,15 +37,18 @@ def search_view(request):
 
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
     request.session['keywords'] = keywords
-    csrftoken = request.COOKIES.get('csrfmiddlewaretoken')
 
     if request.method == 'GET' and keywords:
-        manage = SpiderManage(keywords, csrftoken)
+        manage = SpiderManage(keywords)
         manage.initialize_spiders()
         manage.run_spiders()
-        tasks_ids_list = manage.dump_tasks()
-        request.session['tasks_hashes'] = tasks_ids_list.values()
-        return redirect('/process/', kwargs=keywords)
+        tasks_id_dict = manage.dump_tasks()
+        request.session['tasks_hashes'] = tasks_id_dict.values()
+        response = redirect('/process/')
+        tasks_ids = uuid.uuid1()
+        r.set(tasks_ids, json.dumps(tasks_id_dict))
+        response.set_cookie('task_hashes', tasks_ids)
+        return response
 
     return render(request, template_name='image_aggregator/index.html')
 

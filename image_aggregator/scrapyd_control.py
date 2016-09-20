@@ -11,9 +11,8 @@ class SpiderManage(object):
     API_URL = 'http://localhost:6800'
     PROJECT = 'web_bot'
 
-    def __init__(self, keywords, csrftoken):
+    def __init__(self, keywords):
         self.keywords = keywords
-        self.csrftoken = csrftoken
         self.spiders = None
         self.api = None
         self.id_dict = dict()
@@ -35,8 +34,8 @@ class SpiderManage(object):
         """
         for spider in self.spiders:
             try:
-                task_id = self.api.schedule(self.PROJECT, spider, kwargs={'keywords': self.keywords, 'csrftoken': self.csrftoken})
-                self.id_dict[spider] = task_id
+                task_id = self.api.schedule(self.PROJECT, spider, kwargs={'keywords': self.keywords})
+                self.id_dict[task_id] = spider
             except:
                 client.captureException()
 
@@ -48,10 +47,10 @@ class SpiderManage(object):
         for key, value in self.id_dict.items():
             try:
                 Task.objects.create(
-                    job=value,
+                    job=key,
                     keywords=self.keywords,
                     is_done=False,
-                    spider_name=key,
+                    spider_name=value,
                 )
             except:
                 client.captureException()

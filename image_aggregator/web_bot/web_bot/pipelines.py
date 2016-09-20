@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from settings import SENTRY_DSN
 import redis
@@ -44,9 +45,9 @@ class WebBotPipeline:
         self.conn.execute(query)
         self.conn.execute('UPDATE image_aggregator_task SET is_done=1 WHERE job="%s"' % job_id[0])
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        identifier_string = self.buff_item.get('csrftoken')[0] + self.spider_name
-        r.set('%s' % identifier_string, '%s' % self.spider_name)
-        r.expire('%s' % identifier_string, 30)
+        # r.set('%s' % identifier_string, '%s' % self.spider_name)
+        # r.expire('%s' % identifier_string, 30)
+        r.publish('task_state', '%s' % json.dumps(job_id))
 
         return item
 
