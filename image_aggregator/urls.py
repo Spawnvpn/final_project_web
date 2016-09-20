@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^result/page/(?P<page>\d+)/$', view=views.ImageListView.as_view()),
     url(r'^result/(?P<query>\w+)$', view=views.ImageListView.as_view(), name='image_list'),
     url(r'^result/$', view=views.ImageListView.as_view(), name='image_list'),
+    url(r'^(?P<query>\w+)$', view=views.ImageListView.as_view(), name='image_list'),
     url(r'^$', view=views.index),
 ]

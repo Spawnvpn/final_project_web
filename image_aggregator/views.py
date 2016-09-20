@@ -1,9 +1,7 @@
-from datetime import datetime
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models.functions import datetime
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
-from django.core.cache import cache
 from image_aggregator.models import Result, Task
 from scrapyd_control import SpiderManage
 import logging
@@ -26,12 +24,18 @@ def search_view(request):
     Takes the desired keywords and creates tasks of spiders.
     """
     keywords = request.GET.get('keywords')
-    qs = Result.objects.filter(Q(life_expiration__lt=datetime.today()) & Q(task__keywords__icontains=keywords))
+
+    qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__icontains=keywords)
     if qs:
+        paginator = Paginator(qs, 12)
+        page = request.GET.get('page', 1)
+        qs = paginator.page(page)
         return render(request, template_name='image_aggregator/image_list.html', context={'images_list': qs})
+
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
     request.session['keywords'] = keywords
     csrftoken = request.COOKIES.get('csrfmiddlewaretoken')
+
     if request.method == 'GET' and keywords:
         manage = SpiderManage(keywords, csrftoken)
         manage.initialize_spiders()
@@ -39,6 +43,7 @@ def search_view(request):
         tasks_ids_list = manage.dump_tasks()
         request.session['tasks_hashes'] = tasks_ids_list.values()
         return redirect('/process/', kwargs=keywords)
+
     return render(request, template_name='image_aggregator/index.html')
 
 

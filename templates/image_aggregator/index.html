@@ -22,7 +22,7 @@
     {% for word in context %}
         {% if forloop.counter|divisibleby:"3" %}
               <div class="keyword">
-        {{ word.keywords }}<br>
+        <a href="/{{ word.keywords }}/">{{ word.keywords }}</a><br>
               </div>
         {% endif %}
     {% endfor %}

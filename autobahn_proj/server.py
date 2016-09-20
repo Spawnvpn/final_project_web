@@ -37,6 +37,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
+        self.request = request
 
     def onOpen(self):
         print("WebSocket connection open.")
