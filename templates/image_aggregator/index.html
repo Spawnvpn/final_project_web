@@ -22,7 +22,7 @@
     {% for word in context %}
         {% if forloop.counter|divisibleby:"3" %}
               <div class="keyword">
-        <a href="/{{ word.keywords }}/">{{ word.keywords }}</a><br>
+        <a href="/search/?q={{ word.keywords }}">{{ word.keywords }}</a><br>
               </div>
         {% endif %}
     {% endfor %}
@@ -31,9 +31,9 @@
   <div class="panel panel-info history"></div>
   <p>This is a simple application that searches for <br> images in services: Google, Yandex and Instagram.</p>
   <p><a id="jumbo-button" class="btn btn-primary btn-lg" onclick="displayForm()" role="button">Try it!</a></p>
-<form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">{% csrf_token %}
+<form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">
         <div class="form-group">
-            <input class="form-control" name="keywords" type="text" placeholder="Search">
+            <input class="form-control" name="q" type="text" placeholder="Search">
         </div>
     <button class="btn btn-default" type="submit" onclick="document.cookie = $('#jumbo-form').serialize()">Enter</button>
 </form>

@@ -24,7 +24,6 @@
             socket.onmessage = function(e) {
                if (typeof e.data == "string") {
                   console.log("Text message received: " + e.data);
-                  console.log(document.cookie);
                    if (e.data == "Google True") {
                        document.getElementById('google-process').style.display='none';
                        document.getElementById('google-success').style.display='block'

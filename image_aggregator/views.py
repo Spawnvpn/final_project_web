@@ -26,7 +26,7 @@ def search_view(request):
     """
     Takes the desired keywords and creates tasks of spiders.
     """
-    keywords = request.GET.get('keywords')
+    keywords = request.GET.get('q')
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
     qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__icontains=keywords)
     if qs:
@@ -43,7 +43,7 @@ def search_view(request):
         manage.initialize_spiders()
         manage.run_spiders()
         tasks_id_dict = manage.dump_tasks()
-        request.session['tasks_hashes'] = tasks_id_dict.values()
+        request.session['tasks_hashes'] = tasks_id_dict.keys()
         response = redirect('/process/')
         tasks_ids = uuid.uuid1()
         r.set(tasks_ids, json.dumps(tasks_id_dict))

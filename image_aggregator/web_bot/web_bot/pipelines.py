@@ -9,7 +9,7 @@ from scrapy.xlib.pydispatch import dispatcher
 
 
 class WebBotPipeline:
-    filename = '/home/bogdan/Projects/tasks/final_project_web/db.sqlite3'
+    filename = '/home/bogdan/PycharmProjects/final_project_web/db.sqlite3'
 
     def __init__(self):
         self.conn = None

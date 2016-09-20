@@ -11,7 +11,6 @@ class InstagramImageSpider(scrapy.Spider):
         self.keywords = kwargs.get('keywords')
         self.job = kwargs.get('_job')
         self.logger.info(self.keywords)
-        self.logger.info(self.csrftoken)
     name = 'Instagram'
 
     def start_requests(self):

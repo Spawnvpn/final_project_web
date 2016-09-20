@@ -49,57 +49,20 @@ class MyServerProtocol(WebSocketServerProtocol):
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         payload = json.loads(r.get(payload.decode()).decode())
 
-
-        # google = False
-        # yandex = False
-        # instagram = False
-
-        # payload = str(payload)
-        # print(payload)
-        # if r'\xd' in payload:  # if user entered cyrillic keywords they will be formatted in a simple byte literals
-        #     try:
-        #         index = payload.find('=')
-        #         part = payload[index:].replace(r'\x', '%').upper()
-        #         payload = payload[2:index] + part[:-1]
-        #     except:
-        #         client.captureException()
-        # else:
-        #     payload = payload[2:-1]
         def handler(message):
             state_message = payload[message['data'].decode().replace('["', '').replace('"]', '')]
-            self.sendMessage(bytes(state_message + 'True', encoding='UTF-8'), isBinary)
-            # payload.pop(state_message)
-            self.i += 1
+            self.sendMessage(bytes(state_message + ' True', encoding='UTF-8'), isBinary)
+            payload.pop(payload.keys()[payload.values().index(state_message)])
 
-            if self.i == 3:
+            if not payload:
                 state.unsubscribe()
                 state.close()
                 thread.stop()
+                self.sendMessage(b'DONE')
 
         state = r.pubsub()
         state.subscribe(**{'task_state': handler})
         thread = state.run_in_thread(sleep_time=0.01)
-
-
-        # while not google or not yandex or not instagram:  # requests message that the task is executed from the Redis
-        #     google = r.get(payload + 'Google') == b'Google'
-        #     yandex = r.get(payload + 'Yandex') == b'Yandex'
-        #     instagram = r.get(payload + 'Instagram') == b'Instagram'
-        #
-        #     self.sendMessage(bytes("Google %s" % google, encoding='utf-8'), isBinary)  # sends a message to the client about the status of the task.
-        #     self.sendMessage(bytes("Yandex %s" % yandex, encoding='utf-8'), isBinary)
-        #     self.sendMessage(bytes("Instagram %s" % instagram, encoding='utf-8'), isBinary)
-        #     if i >= 30:  # if the job is not be executed, sends an error to the client
-        #         if not google:
-        #             self.sendMessage(b'google-error')
-        #         if not yandex:
-        #             self.sendMessage(b'yandex-error')
-        #         if not instagram:
-        #             self.sendMessage(b'instagram-error')
-        #         break
-        #     sleep(1)
-        #     i += 1
-        self.sendMessage(b'DONE')
 
         # echo back message verbatim
 
