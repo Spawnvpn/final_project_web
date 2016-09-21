@@ -28,12 +28,13 @@ def search_view(request):
     keywords = request.GET.get('q')
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
     qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__icontains=keywords).order_by('relevance')
+    # request.COOKIES['q'] = keywords
+    # request.session['q'] = keywords
     if qs:
         paginator = Paginator(qs, 12)
         page = request.GET.get('page', 1)
         qs = paginator.page(page)
         return render(request, template_name='image_aggregator/search.html', context={'images_list': qs})
-    request.COOKIES['q'] = keywords
     log.debug('Client: ' + request.META.get('REMOTE_ADDR') + ' entered: ' + keywords)
 
     if request.method == 'GET' and keywords:
@@ -43,7 +44,7 @@ def search_view(request):
         tasks_id_dict = manage.dump_tasks()
         tasks_ids = uuid.uuid1()
         r.set(tasks_ids, json.dumps(tasks_id_dict))
-        return render(request, template_name='image_aggregator/search.html', context={'q': keywords})
+        return render(request, template_name='image_aggregator/search.html', context={'q': str(keywords)})
 
     return render(request, template_name='image_aggregator/index.html')
 

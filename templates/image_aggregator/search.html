@@ -2,9 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!DOCTYPE html>
-<html>
-    <head>
         <script type="text/javascript">
             var socket = null;
             var isopen = false;
@@ -16,8 +13,8 @@
 
             socket.onopen = function() {
                 console.log("Connected!");
-                 socket.send(getCookie('task_hashes'));
-                 isopen = true;
+                socket.send('Connected!');
+                isopen = true;
             };
 
             socket.onmessage = function(e) {
@@ -40,11 +37,16 @@
                         index = e.data.indexOf('-');
                         document.getElementById(e.data.substring(0, index) + '-process').style.display='none'
                    }
+                   debugger;
                    if (e.data == "DONE") {
-                       debugger;
-                       keywords = getCookie('q');
+
+{#                       keywords = getCookie('q');#}
+{#                       document.cookie = '';#}
+                       console.log('azazaz');
 {#                       window.location.reload(true);#}
-                       window.location = "/search/?q=" + keywords;
+                       document.cookie = '{{ q }}'.serialize();
+                       window.location.replace("http://localhost:8000/search/?q=" + '{{ q }}');
+{#                       $(location).attr("href", "/search/?q=" + '{{ q }}');#}
                    }
                } else {
                   var arr = new Uint8Array(e.data);
@@ -72,12 +74,10 @@
 
              var keywords = getCookie('q');
           $('#keywords1').attr('href', '/search/?q=' + keywords + '/?page=' {% if images_list.has_previous %} + {{ images_list.previous_page_number }} {% endif %});
-{#          $('#keywords2').attr('href', '/search/?q=' + keywords + '/?page=' + {{ images_list.paginator.num_pages }});#}
+          $('#keywords2').attr('href', '/search/?q=' + keywords + '/?page=' {% if images_list.paginator %} + {{ images_list.paginator.num_pages }} {% endif %});
           $('#keywords3').attr('href', '/search/?q=' + keywords + '/?page=' {% if images_list.has_next %} + {{ images_list.next_page_number }} {% endif %});
       </script>
 
-   </head>
-        <body>
         {% if images_list %}
         <div class="container cont">
         <div class="row">
@@ -156,7 +156,5 @@
                 <a id="result" class="alert-link" onclick="window.location = '/result/'">Show results</a>
             </div>
     </div>
-   </body>
-</html>
 {% endif %}
 {% endblock %}

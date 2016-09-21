@@ -9,7 +9,7 @@ from scrapy.xlib.pydispatch import dispatcher
 
 
 class WebBotPipeline:
-    filename = '/home/bogdan/Projects/tasks/final_project_web/db.sqlite3'
+    filename = '/home/bogdan/PycharmProjects/final_project_web/db.sqlite3'
 
     def __init__(self):
         self.conn = None
@@ -47,6 +47,7 @@ class WebBotPipeline:
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         # r.set('%s' % identifier_string, '%s' % self.spider_name)
         # r.expire('%s' % identifier_string, 30)
+        print job_id
         r.publish('task_state', '%s' % json.dumps(job_id))
 
         return item

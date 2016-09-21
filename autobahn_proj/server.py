@@ -42,6 +42,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
+        self.request = request
         "prefix.job.{uuid}"
 
     def onOpen(self):
@@ -52,7 +53,7 @@ class MyServerProtocol(WebSocketServerProtocol):
         # payload = json.loads(r.get(payload.decode()).decode())
 
         def handler(message):
-            self.sql_conn = sqlite3.connect('/home/bogdan/Projects/tasks/final_project_web/db.sqlite3')
+            self.sql_conn = sqlite3.connect('/home/bogdan/PycharmProjects/final_project_web/db.sqlite3')
             task_hash = message['data'].decode().replace('["', '').replace('"]', '')
             spider_state = self.sql_conn.execute('SELECT spider_name FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()[0]
             self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
