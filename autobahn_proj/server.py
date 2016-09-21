@@ -27,6 +27,8 @@ import redis
 from time import sleep, time
 import logging
 import json
+
+import sqlite3
 from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
@@ -35,11 +37,11 @@ client = Client('https://8ff8d6c9c1e2413eb517774e481074c1:4a819bdfaa644649978440
 
 
 class MyServerProtocol(WebSocketServerProtocol):
-    i = 0
+
+    done_count = 0
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
-        self.request = request
         "prefix.job.{uuid}"
 
     def onOpen(self):
@@ -47,16 +49,19 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onMessage(self, payload, isBinary):
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        payload = json.loads(r.get(payload.decode()).decode())
+        # payload = json.loads(r.get(payload.decode()).decode())
 
         def handler(message):
-            state_message = payload[message['data'].decode().replace('["', '').replace('"]', '')]
-            self.sendMessage(bytes(state_message + ' True', encoding='UTF-8'), isBinary)
-            payload.pop(payload.keys()[payload.values().index(state_message)])
+            self.sql_conn = sqlite3.connect('/home/bogdan/Projects/tasks/final_project_web/db.sqlite3')
+            task_hash = message['data'].decode().replace('["', '').replace('"]', '')
+            spider_state = self.sql_conn.execute('SELECT spider_name FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()[0]
+            self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
+            self.done_count += 1
 
-            if not payload:
+            if self.done_count == 3:
                 state.unsubscribe()
                 state.close()
+                self.sql_conn.close()
                 thread.stop()
                 self.sendMessage(b'DONE')
 

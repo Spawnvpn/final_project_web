@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            var socket = null;
+            var isopen = false;
+            document.getElementById('search-form').style.display='none';
+
+            window.onload = function() {
+            socket = new WebSocket("ws://127.0.0.1:9000");
+            socket.binaryType = "arraybuffer";
+
+            socket.onopen = function() {
+                console.log("Connected!");
+                 socket.send(getCookie('task_hashes'));
+                 isopen = true;
+            };
+
+            socket.onmessage = function(e) {
+                if (typeof e.data == "string") {
+                    console.log("Text message received: " + e.data);
+                    if (e.data == "Google True") {
+                        document.getElementById('google-process').style.display='none';
+                        document.getElementById('google-success').style.display='block'
+                    }
+                    if (e.data == "Yandex True") {
+                        document.getElementById('yandex-process').style.display='none';
+                        document.getElementById('yandex-success').style.display='block'
+                    }
+                    if (e.data == "Instagram True") {
+                        document.getElementById('instagram-process').style.display='none';
+                        document.getElementById('instagram-success').style.display='block'
+                    }
+                    if (~e.data.indexOf("error")) {
+                        document.getElementById(e.data).style.display='block';
+                        index = e.data.indexOf('-');
+                        document.getElementById(e.data.substring(0, index) + '-process').style.display='none'
+                   }
+                   if (e.data == "DONE") {
+                       debugger;
+                       keywords = getCookie('q');
+{#                       window.location.reload(true);#}
+                       window.location = "/search/?q=" + keywords;
+                   }
+               } else {
+                  var arr = new Uint8Array(e.data);
+                  var hex = '';
+                  for (var i = 0; i < arr.length; i++) {
+                     hex += ('00' + arr[i].toString(16)).substr(-2);
+                  }
+                  console.log("Binary message received: " + hex);
+               }
+            };
+
+            socket.onclose = function(e) {
+               console.log("Connection closed.");
+               socket = null;
+               isopen = false;
+            }
+         };
+
+         function getCookie(name) {
+            var matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+         }
+
+             var keywords = getCookie('q');
+          $('#keywords1').attr('href', '/search/?q=' + keywords + '/?page=' {% if images_list.has_previous %} + {{ images_list.previous_page_number }} {% endif %});
+{#          $('#keywords2').attr('href', '/search/?q=' + keywords + '/?page=' + {{ images_list.paginator.num_pages }});#}
+          $('#keywords3').attr('href', '/search/?q=' + keywords + '/?page=' {% if images_list.has_next %} + {{ images_list.next_page_number }} {% endif %});
+      </script>
+
+   </head>
+        <body>
+        {% if images_list %}
+        <div class="container cont">
+        <div class="row">
+            {% for image in images_list %}
+                    <div class="col-md-3">
+                        <div class="images">
+                            <a href="{{ image.image_url }}">
+                                <img class="img img-responsive" width="300" height="200" src="{{ image.small_image_url }}" alt="Responsive image">
+                            </a>
+                         </div>
+                        <div class="well well-sm">
+                            <p>Search engine: {{ image.search_engine }}</p>
+                            <p>Origin url: {{ image.origin_url }}</p>
+                        </div>
+                    </div>
+                {% if forloop.counter|divisibleby:"4" %}
+                    </div>
+                    <div class="row metablock">
+                {% endif %}
+            {% endfor %}
+
+        <nav aria-label="Page navigation">
+  <ul class="pagination">
+    <li class="page-item">
+        {% if images_list.has_previous %}
+            <a id="keywords1" class="page-link" href="" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+            </a>
+        {% endif %}
+    </li>
+  <li class="page-item"><a class="page-link" href="/search/page/1">First</a></li>
+    <li class="page-item"><a class="page-link" href="#">{{ images_list.number }}</a></li>
+
+  <li class="page-item"><a id="keywords2" class="page-link" href="">Last</a></li>
+    <li class="page-item">
+        {% if images_list.has_next %}
+      <a id="keywords3" class="page-link" href="" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+        {% endif %}
+    </li>
+  </ul>
+</nav>
+        </div>
+            {% else %}
+            <div id="google-success" class="alert alert-success" role="alert">
+                <a href="#" class="alert-link">Google OK</a>
+            </div>
+            <div id="google-process" class="alert alert-warning" role="alert">
+                <a href="#" class="alert-link">Google Process</a>
+            </div>
+            <div id="google-error" class="alert alert-danger" role="alert">
+                <a href="#" class="alert-link">Google Error</a>
+            </div>
+            <div id="yandex-success" class="alert alert-success" role="alert">
+                <a href="#" class="alert-link">Yandex OK</a>
+            </div>
+            <div id="yandex-process" class="alert alert-warning" role="alert">
+                <a href="#" class="alert-link">Yandex Process</a>
+            </div>
+            <div id="yandex-error" class="alert alert-danger" role="alert">
+                <a href="#" class="alert-link">Yandex Error</a>
+            </div>
+            <div id="instagram-success" class="alert alert-success" role="alert">
+                <a href="#" class="alert-link">Instagram OK</a>
+            </div>
+            <div id="instagram-process" class="alert alert-warning" role="alert">
+                <a href="#" class="alert-link">Instagram Process</a>
+            </div>
+            <div id="instagram-error" class="alert alert-danger" role="alert">
+                <a href="#" class="alert-link">Instagram Error</a>
+            </div>
+            <div id="link" class="alert alert-info" role="alert">
+                <a id="result" class="alert-link" onclick="window.location = '/result/'">Show results</a>
+            </div>
+    </div>
+   </body>
+</html>
+{% endif %}
+{% endblock %}

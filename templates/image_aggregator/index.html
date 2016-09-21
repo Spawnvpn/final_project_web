@@ -13,29 +13,29 @@
 </head>
 
 <div class="jumbotron">
-  <h1>Welcome!</h1>
-  <div class="panel panel-info history">
+    <h1>Welcome!</h1>
+    <div class="panel panel-info history">
     <div class="panel-body">
-    Recently searched
+        Recently searched
     </div>
-  <div class="panel-footer">
+    <div class="panel-footer">
     {% for word in context %}
         {% if forloop.counter|divisibleby:"3" %}
-              <div class="keyword">
+            <div class="keyword">
         <a href="/search/?q={{ word.keywords }}">{{ word.keywords }}</a><br>
-              </div>
+            </div>
         {% endif %}
     {% endfor %}
-  </div>
+    </div>
 </div>
-  <div class="panel panel-info history"></div>
-  <p>This is a simple application that searches for <br> images in services: Google, Yandex and Instagram.</p>
-  <p><a id="jumbo-button" class="btn btn-primary btn-lg" onclick="displayForm()" role="button">Try it!</a></p>
-<form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">
+    <div class="panel panel-info history"></div>
+    <p>This is a simple application that searches for <br> images in services: Google, Yandex and Instagram.</p>
+    <p><a id="jumbo-button" class="btn btn-primary btn-lg" onclick="displayForm()" role="button">Try it!</a></p>
+    <form id="jumbo-form"  class="navbar-form" role="search" action="search/" method="get" accept-charset="utf-8">
         <div class="form-group">
             <input class="form-control" name="q" type="text" placeholder="Search">
         </div>
-    <button class="btn btn-default" type="submit" onclick="document.cookie = $('#jumbo-form').serialize()">Enter</button>
+    <button class="btn btn-default" type="submit" onclick="">Enter</button>
 </form>
 </div>
 

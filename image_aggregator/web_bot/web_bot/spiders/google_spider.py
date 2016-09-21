@@ -9,7 +9,6 @@ class GoogleImageSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super(GoogleImageSpider, self).__init__(*args, **kwargs)
         self.keywords = kwargs.get('keywords')
-        # self.csrftoken = kwargs.get('csrftoken')
         self.job = kwargs.get('_job')
         self.logger.info(self.keywords)
     name = 'Google'
