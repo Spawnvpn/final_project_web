@@ -6,8 +6,15 @@
 #     http://doc.scrapy.org/topics/settings.html
 #
 
+from scrapyd.app import *
+
+
+
+
 BOT_NAME = 'web_bot'
 # BOT_VERSION = '1.0'
+
+DB_PATH = '/home/bogdan/PycharmProjects/final_project_web/db.sqlite3'
 
 SPIDER_MODULES = ['web_bot.spiders']
 NEWSPIDER_MODULE = 'web_bot.spiders'
@@ -142,6 +149,8 @@ DOWNLOADER_MIDDLEWARES = {
     # 'CheckIP.middlewares.ProxyMiddleware': 410,
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
 }
+
+max_proc = 10
 
 LOG_ENABLED = True
 

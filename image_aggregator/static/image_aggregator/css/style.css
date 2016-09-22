@@ -97,3 +97,11 @@ img {
 .keyword {
     border-bottom: solid 1px #e0e0e0;
 }
+
+.progress {
+    margin-top: 35%;
+}
+
+#progress {
+    height: 50px;
+}

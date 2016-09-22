@@ -1,3 +1,5 @@
+import hashlib
+
 import redis
 from django.core.paginator import Paginator
 from django.db.models.functions import datetime
@@ -46,8 +48,8 @@ def search_view(request, **kwargs):
         manage.initialize_spiders()
         manage.run_spiders()
         tasks_id_dict = manage.dump_tasks()
-        tasks_ids = uuid.uuid1()
-        r.set(tasks_ids, json.dumps(tasks_id_dict))
+        hashed_keywords = hashlib.md5(keywords)
+        r.set(hashed_keywords, json.dumps(tasks_id_dict))
         r.set('quantity_spiders', len(tasks_id_dict.values()))
         response = render(request, template_name='image_aggregator/search.html', context={'q': str(keywords)})
         response['Cache-Control'] = 'no-cache'

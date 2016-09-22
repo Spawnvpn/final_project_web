@@ -26,6 +26,7 @@
 import redis
 import settings
 import sqlite3
+import hashlib
 from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
@@ -51,10 +52,15 @@ class MyServerProtocol(WebSocketServerProtocol):
         def handler(message):
             self.sql_conn = sqlite3.connect(settings.DB_PATH)
             task_hash = message['data'].decode().replace('["', '').replace('"]', '')
-            # spider_state = self.sql_conn.execute('SELECT spider_name FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()[0]
+            spider_state = self.sql_conn.execute('SELECT job, keywords FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()
+            # keywords_hash = hashlib.md5(spider_state[1])
+            task_dict = r.get(hashlib.md5(spider_state[1].encode('unicode')))
+            print(task_dict)
+            if task_hash == spider_state[0]:
+                self.sendMessage(bytes('True', encoding='UTF-8'), isBinary)
             # self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
             spiders_quantity = int(r.get('quantity_spiders').decode())
-            self.sendMessage(bytes('True', encoding='UTF-8'), isBinary)
+
             self.done_count += 1
             if task_hash == 'error':
                 self.done_count += 1
