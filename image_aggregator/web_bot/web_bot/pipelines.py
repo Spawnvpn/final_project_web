@@ -9,7 +9,7 @@ from scrapy.xlib.pydispatch import dispatcher
 
 
 class WebBotPipeline:
-    filename = '/home/bogdan/PycharmProjects/final_project_web/db.sqlite3'
+    filename = '/home/bogdan/Projects/tasks/final_project_web/db.sqlite3'
 
     def __init__(self):
         self.conn = None
@@ -26,6 +26,7 @@ class WebBotPipeline:
         return expiration_date
 
     def process_item(self, item, spider):
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
         self.buff_item = item
         self.spider_name = spider.name
         job_id = item.get('job_id')
@@ -40,11 +41,12 @@ class WebBotPipeline:
                 relevance += 1
         except:
             self.client.captureException()
+            r.publish('task_state', 'error')
 
         query = query_string[:-1]
+        print query
         self.conn.execute(query)
         self.conn.execute('UPDATE image_aggregator_task SET is_done=1 WHERE job="%s"' % job_id[0])
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
         # r.set('%s' % identifier_string, '%s' % self.spider_name)
         # r.expire('%s' % identifier_string, 30)
         print job_id

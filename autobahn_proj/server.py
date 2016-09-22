@@ -24,16 +24,13 @@
 #
 ###############################################################################
 import redis
-from time import sleep, time
-import logging
-import json
-
+import settings
 import sqlite3
 from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
 
-client = Client('https://8ff8d6c9c1e2413eb517774e481074c1:4a819bdfaa644649978440d6ee752545@sentry.io/97142')
+client = Client(settings.RAVEN_URL)
 
 
 class MyServerProtocol(WebSocketServerProtocol):
@@ -49,17 +46,20 @@ class MyServerProtocol(WebSocketServerProtocol):
         print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        # payload = json.loads(r.get(payload.decode()).decode())
+        r = redis.StrictRedis(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
 
         def handler(message):
-            self.sql_conn = sqlite3.connect('/home/bogdan/PycharmProjects/final_project_web/db.sqlite3')
+            self.sql_conn = sqlite3.connect(settings.DB_PATH)
             task_hash = message['data'].decode().replace('["', '').replace('"]', '')
-            spider_state = self.sql_conn.execute('SELECT spider_name FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()[0]
-            self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
+            # spider_state = self.sql_conn.execute('SELECT spider_name FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()[0]
+            # self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
+            spiders_quantity = int(r.get('quantity_spiders').decode())
+            self.sendMessage(bytes('True', encoding='UTF-8'), isBinary)
             self.done_count += 1
+            if task_hash == 'error':
+                self.done_count += 1
 
-            if self.done_count == 3:
+            if self.done_count == spiders_quantity:
                 state.unsubscribe()
                 state.close()
                 self.sql_conn.close()
