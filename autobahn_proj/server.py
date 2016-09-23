@@ -23,10 +23,11 @@
 # THE SOFTWARE.
 #
 ###############################################################################
+import json
+
 import redis
 import settings
 import sqlite3
-import hashlib
 from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
@@ -47,16 +48,17 @@ class MyServerProtocol(WebSocketServerProtocol):
         print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
-        r = redis.StrictRedis(settings.REDIS_HOST, settings.REDIS_PORT, settings.REDIS_DB)
+        r = redis.StrictRedis.from_url(settings.REDIS_CON)
 
         def handler(message):
             self.sql_conn = sqlite3.connect(settings.DB_PATH)
             task_hash = message['data'].decode().replace('["', '').replace('"]', '')
             spider_state = self.sql_conn.execute('SELECT job, keywords FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()
-            # keywords_hash = hashlib.md5(spider_state[1])
-            task_dict = r.get(hashlib.md5(spider_state[1].encode('unicode')))
-            print(task_dict)
-            if task_hash == spider_state[0]:
+            try:
+                task_dict = json.loads(r.get(spider_state[1]).decode())
+            except:
+                return
+            if task_hash in list(task_dict.keys()):
                 self.sendMessage(bytes('True', encoding='UTF-8'), isBinary)
             # self.sendMessage(bytes(spider_state + ' True', encoding='UTF-8'), isBinary)
             spiders_quantity = int(r.get('quantity_spiders').decode())

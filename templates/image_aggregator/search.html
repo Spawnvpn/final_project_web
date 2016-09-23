@@ -2,106 +2,107 @@
 {% load static %}
 {% block content %}
 
-        <script type="text/javascript">
-            var socket = null;
-            var isopen = false;
+    <script type="text/javascript">
+        var socket = null;
+        var isopen = false;
 
-            window.onload = function() {
-            socket = new WebSocket("ws://127.0.0.1:9000");
-            socket.binaryType = "arraybuffer";
+        window.onload = function() {
+        socket = new WebSocket("ws://127.0.0.1:9000");
+        socket.binaryType = "arraybuffer";
 
-            socket.onopen = function() {
-                console.log("Connected!");
-                socket.send('Connect!');
-                isopen = true;
-            };
-            var success_percent = 0;
-            socket.onmessage = function(e) {
-                if (typeof e.data == "string") {
-                    console.log("Text message received: " + e.data);
-                    if (e.data == "True") {
-                        success_percent += 33;
-                        debugger;
-                        document.getElementById('progress').style.width = String(success_percent) + '%';
-                    }
-                   if (e.data == "DONE") {
-                       {% url 'search' q 1 as result %}
-                       document.getElementById('progress').style.width = '100%';
-                       window.location.href = '{{ result }}';
-                   }
-               } else {
-                  var arr = new Uint8Array(e.data);
-                  var hex = '';
-                  for (var i = 0; i < arr.length; i++) {
-                     hex += ('00' + arr[i].toString(16)).substr(-2);
-                  }
-                  console.log("Binary message received: " + hex);
-               }
-            };
-
-            socket.onclose = function(e) {
-               console.log("Connection closed.");
-               socket = null;
-               isopen = false;
+        socket.onopen = function() {
+            console.log("Connected!");
+            socket.send('Connect!');
+            isopen = true;
+        };
+        var success_percent = 0;
+        socket.onmessage = function(e) {
+            if (typeof e.data == "string") {
+                console.log("Text message received: " + e.data);
+                if (e.data == "True") {
+                    success_percent += 33;
+                    debugger;
+                    document.getElementById('progress').style.width = String(success_percent) + '%';
+                }
+                if (e.data == "DONE") {
+                    {% url 'search' q 1 as result %}
+                    document.getElementById('progress').style.width = '100%';
+                    window.location.href = '{{ result }}';
+                }
             }
-         };
+            else {
+                var arr = new Uint8Array(e.data);
+                var hex = '';
+                for (var i = 0; i < arr.length; i++) {
+                    hex += ('00' + arr[i].toString(16)).substr(-2);
+                }
+                console.log("Binary message received: " + hex);
+            }
+        };
 
-      </script>
+        socket.onclose = function(e) {
+            console.log("Connection closed.");
+            socket = null;
+            isopen = false;
+        }
+    };
+
+    </script>
         {% if images_list %}
-        <div class="container cont">
-        <div class="row">
-            {% for image in images_list %}
+            <div class="container cont">
+            <div class="row">
+                {% for image in images_list %}
                     <div class="col-md-3">
                         <div class="images">
                             <a href="{{ image.image_url }}">
                                 <img class="img img-responsive" width="300" height="200" src="{{ image.small_image_url }}" alt="Responsive image">
                             </a>
-                         </div>
+                        </div>
                         <div class="well well-sm">
                             <p>Search engine: {{ image.search_engine }}</p>
                             <p>Origin url: {{ image.origin_url }}</p>
                         </div>
                     </div>
                 {% if forloop.counter|divisibleby:"4" %}
-                    </div>
+            </div>
                     <div class="row metablock">
                 {% endif %}
-            {% endfor %}
+                {% endfor %}
 
         <nav aria-label="Page navigation">
-  <ul class="pagination">
-    <li class="page-item">
-
-        {% if images_list.has_previous %}
-            {% url 'search' q images_list.previous_page_number as previous %}
-            <a id="" class="page-link" href="{{ previous }}" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-            </a>
-        {% endif %}
-    </li>
-    {% url 'search' q 1 as first %}
-  <li class="page-item"><a class="page-link" href="{{ first }}">First</a></li>
-    <li class="page-item"><a class="page-link" href="#">{{ images_list.number }}</a></li>
-    {% url 'search' q images_list.paginator.num_pages as last %}
-  <li class="page-item"><a id="" class="page-link" href="{{ last }}">Last</a></li>
-    <li class="page-item">
-        {% if images_list.has_next %}
-            {% url 'search' q images_list.next_page_number as next %}
-      <a id="" class="page-link" href="{{ next }}" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-        <span class="sr-only">Next</span>
-      </a>
-        {% endif %}
-    </li>
-  </ul>
-</nav>
-            </div>
-            {% else %}
+            <ul class="pagination">
+                <li class="page-item">
+                    {% if images_list.has_previous %}
+                        {% url 'search' q images_list.previous_page_number as previous %}
+                        <a id="" class="page-link" href="{{ previous }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    {% endif %}
+                </li>
+                {% url 'search' q 1 as first %}
+                <li class="page-item"><a class="page-link" href="{{ first }}">First</a></li>
+                <li class="page-item"><a class="page-link" href="#">{{ images_list.number }}</a></li>
+                {% url 'search' q images_list.paginator.num_pages as last %}
+                <li class="page-item"><a id="" class="page-link" href="{{ last }}">Last</a></li>
+                <li class="page-item">
+                    {% if images_list.has_next %}
+                        {% url 'search' q images_list.next_page_number as next %}
+                        <a id="" class="page-link" href="{{ next }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+                    </div>
+        {% else %}
             <div class="progress">
                 <div id="progress" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span class="load-string">Please wait</span>
                 </div>
             </div>
-        </div>
-{% endif %}
+            </div>
+        {% endif %}
 {% endblock %}

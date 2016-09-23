@@ -27,7 +27,7 @@ class WebBotPipeline:
         return expiration_date
 
     def process_item(self, item, spider):
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        r = redis.StrictRedis().from_url(settings.REDIS_CON)
         self.buff_item = item
         self.spider_name = spider.name
         job_id = item.get('job_id')
