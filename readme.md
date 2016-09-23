@@ -12,27 +12,27 @@ After in the root of the project to create a virtual environment (in your projec
     python manage.py makemigrations && python manage.py migrate__
     python manage.py runserver__
 
-After in new terminal:__
-    cd .../final_project_web/autobahn_proj__
-    virtualenv -p python3 .env__
-    . .env/bin/activate__
-    pip install -r requirements__
-    python server.py__
+After in new terminal:<br>
+    cd .../final_project_web/autobahn_proj<br>
+    virtualenv -p python3 .env<br>
+    . .env/bin/activate<br>
+    pip install -r requirements<br>
+    python server.py<br>
 
-After in new terminal:__
-    cd .../final_project_web__
-    . .env/bin/activate__
-    scrapyd__
+After in new terminal:<br>
+    cd .../final_project_web<br>
+    . .env/bin/activate<br>
+    scrapyd<br>
 
-After in new terminal:__
-    cd .../final_project_web__
-    . .env/bin/activate__
-    cd image_aggregator/web_bot__
-    scrapyd-deploy web_bot__
+After in new terminal:<br>
+    cd .../final_project_web<br>
+    . .env/bin/activate<br>
+    cd image_aggregator/web_bot<br>
+    scrapyd-deploy web_bot<br>
 
 After in new terminal:
-    redis-server__
-    or run your redis-server as daemon__
+    redis-server<br>
+    or run your redis-server as daemon<br>
 
 
 ## Use
