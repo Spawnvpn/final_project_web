@@ -1,5 +1,3 @@
-import hashlib
-
 import redis
 from django.core.paginator import Paginator
 from django.db.models.functions import datetime
@@ -7,15 +5,15 @@ from django.shortcuts import render, redirect
 from image_aggregator.models import Result, Task
 from scrapyd_control import SpiderManage
 import json
-import uuid
 import logging
+from final_project_web import settings
 
 log = logging.getLogger(__name__)
 
 
 def index(request):
     """
-    :returns template with main page.
+    :returns template with main page.s
     """
     log.info('Client: ' + request.META.get('REMOTE_ADDR') + ' get index')
     qs = Task.objects.all().order_by('-id')[:30]
@@ -26,7 +24,7 @@ def search_view(request, **kwargs):
     """
     Takes the desired keywords and creates tasks of spiders.
     """
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    r = redis.StrictRedis().from_url(settings.REDIS_CON)
     if request.method == 'POST':
         return redirect('search', **{'query': request.POST['q'], 'page': request.POST.get('page', '1')})
 
@@ -34,7 +32,7 @@ def search_view(request, **kwargs):
         page = kwargs.get('page')
         keywords = kwargs.get('query')
 
-    qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__icontains=keywords).order_by('relevance')
+    qs = Result.objects.filter(life_expiration__gt=datetime.datetime.now(), task__keywords__iexact=keywords).order_by('relevance')
 
     if qs:
         paginator = Paginator(qs, 12)
@@ -49,9 +47,10 @@ def search_view(request, **kwargs):
         manage.run_spiders()
         tasks_id_dict = manage.dump_tasks()
         # hashed_keywords = hashlib.md5(keywords)
+        keywords = keywords.replace('+', ' ')
         r.set(keywords, json.dumps(tasks_id_dict))
         r.set('quantity_spiders', len(tasks_id_dict.values()))
-        response = render(request, template_name='image_aggregator/search.html', context={'q': str(keywords)})
+        response = render(request, template_name='image_aggregator/search.html', context={'q': keywords})
         response['Cache-Control'] = 'no-cache'
         return response
 

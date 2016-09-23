@@ -197,4 +197,6 @@ RAVEN_CONFIG = {
     'release': raven.os.path.dirname(os.path.abspath(__file__)),
 }
 
+REDIS_CON = 'redis://localhost:6379/0'
+
 # BROKER_URL = 'django://'

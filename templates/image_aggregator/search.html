@@ -9,7 +9,7 @@
         window.onload = function() {
         socket = new WebSocket("ws://127.0.0.1:9000");
         socket.binaryType = "arraybuffer";
-
+        searchWord();
         socket.onopen = function() {
             console.log("Connected!");
             socket.send('Connect!');
@@ -21,7 +21,6 @@
                 console.log("Text message received: " + e.data);
                 if (e.data == "True") {
                     success_percent += 33;
-                    debugger;
                     document.getElementById('progress').style.width = String(success_percent) + '%';
                 }
                 if (e.data == "DONE") {
@@ -44,6 +43,10 @@
             console.log("Connection closed.");
             socket = null;
             isopen = false;
+        };
+
+        function searchWord() {
+            document.getElementById('base-input').setAttribute('placeholder', '{{ q }}')
         }
     };
 
