@@ -1,19 +1,20 @@
 import json
-import sqlite3
+import psycopg2
 from settings import SENTRY_DSN
 import redis
-from os import path
 from raven import Client
 from scrapy import signals
 from scrapy.xlib.pydispatch import dispatcher
 import settings
+from datetime import datetime
 
 
 class WebBotPipeline:
-    filename = settings.DB_PATH
 
     def __init__(self):
+        self.conn_string = settings.DB_CONN
         self.conn = None
+        self.cursor = None
         self.buff_item = None
         self.spider_name = None
         self.client = Client(SENTRY_DSN)
@@ -21,8 +22,8 @@ class WebBotPipeline:
         dispatcher.connect(self.finalize, signals.engine_stopped)
 
     def get_expiration(self):
-        date = sqlite3.datetime.datetime.now()
-        day = sqlite3.datetime.datetime.now().day + 1
+        date = datetime.now()
+        day = datetime.now().day + 1
         expiration_date = date.replace(day=day)
         return expiration_date
 
@@ -31,14 +32,14 @@ class WebBotPipeline:
         self.buff_item = item
         self.spider_name = spider.name
         job_id = item.get('job_id')
-        task_id = self.conn.execute('SELECT id FROM image_aggregator_task WHERE job="%s"' % job_id[0])
-        task_id = task_id.fetchone()
-        query_string = 'INSERT INTO image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id, relevance, life_expiration) VALUES '
+        self.cursor.execute("SELECT id FROM image_aggregator_task WHERE job='%s'" % job_id[0])
+        task_id = self.cursor.fetchone()
+        query_string = "INSERT INTO image_aggregator_result(image_url, small_image_url, search_engine, origin_url, task_id, relevance, life_expiration) VALUES "
         relevance = 1
 
         try:
             for big_image, small_image, origin in zip(item['image_url'], item['small_image_url'], item['origin_url']):
-                query_string += '("%s", "%s", "%s", "%s", "%s", "%s", "%s"),' % (big_image, small_image, spider.name, origin, task_id[0], relevance, self.get_expiration())
+                query_string += "('%s', '%s', '%s', '%s', '%s', '%s', '%s')," % (big_image, small_image, spider.name, origin, task_id[0], relevance, self.get_expiration())
                 relevance += 1
         except:
             self.client.captureException()
@@ -46,8 +47,8 @@ class WebBotPipeline:
 
         query = query_string[:-1]
         try:
-            self.conn.execute(query)
-            self.conn.execute('UPDATE image_aggregator_task SET is_done=1 WHERE job="%s"' % job_id[0])
+            self.cursor.execute(query + ';')
+            self.cursor.execute("UPDATE image_aggregator_task SET is_done=1 WHERE job='%s'" % job_id[0])
         except:
             self.client.captureException()
             r.publish('task_state', 'error')
@@ -56,11 +57,12 @@ class WebBotPipeline:
         return item
 
     def initialize(self):
-        if path.exists(self.filename):
-            self.conn = sqlite3.connect(self.filename)
+        self.conn = psycopg2.connect(self.conn_string)
+        self.cursor = self.conn.cursor()
 
     def finalize(self):
-        if self.conn is not None:
-            self.conn.commit()
-            self.conn.close()
-            self.conn = None
+        self.conn.commit()
+        self.cursor.close()
+        self.conn.close()
+        self.conn = None
+        self.cursor = None

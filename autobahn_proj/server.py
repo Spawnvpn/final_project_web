@@ -25,9 +25,9 @@
 ###############################################################################
 import json
 
+import psycopg2
 import redis
 import settings
-import sqlite3
 from raven import Client
 from autobahn.asyncio.websocket import WebSocketServerProtocol, \
     WebSocketServerFactory
@@ -49,11 +49,15 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onMessage(self, payload, isBinary):
         r = redis.StrictRedis.from_url(settings.REDIS_CON)
+        conn_string = settings.DB_CONN
 
         def handler(message):
-            self.sql_conn = sqlite3.connect(settings.DB_PATH)
+            self.sql_conn = psycopg2.connect(conn_string)
+            cursor = self.sql_conn.cursor()
             task_hash = message['data'].decode().replace('["', '').replace('"]', '')
-            spider_state = self.sql_conn.execute('SELECT job, keywords FROM image_aggregator_task WHERE job="%s"' % task_hash).fetchone()
+            cursor.execute("SELECT job, keywords FROM image_aggregator_task WHERE job='%s'" % task_hash)
+            spider_state = cursor.fetchone()
+            cursor.close()
             try:
                 task_dict = json.loads(r.get(spider_state[1]).decode())
             except:

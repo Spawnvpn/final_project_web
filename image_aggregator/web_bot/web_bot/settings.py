@@ -10,7 +10,7 @@
 BOT_NAME = 'web_bot'
 # BOT_VERSION = '1.0'
 
-DB_PATH = '/home/bogdan/Projects/tasks/final_project_web/db.sqlite3'
+DB_CONN = "host='localhost' dbname='final_project_web' user='admin' password='3926'"
 
 SPIDER_MODULES = ['web_bot.spiders']
 NEWSPIDER_MODULE = 'web_bot.spiders'

@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 def index(request):
     """
-    :returns template with main page.s
+    :returns template with main page.
     """
     log.info('Client: ' + request.META.get('REMOTE_ADDR') + ' get index')
     qs = Task.objects.all().order_by('-id')[:30]

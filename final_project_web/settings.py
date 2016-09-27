@@ -128,8 +128,12 @@ WSGI_APPLICATION = 'final_project_web.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'final_project_web',
+        'USER': 'admin',
+        'PASSWORD': '3926',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
