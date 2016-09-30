@@ -9,6 +9,8 @@ First you need clone project from https://github.com/Spawnvpn/final_project_web.
 After in the root of the project to create a virtual environment (in your project root: virtualenv -p python2.7 .env) and execute following command:<br>
     . .env/bin/activate<br>
     pip install -r requirements.txt<br>
+    export PGPASSWORD='admin'<br>
+    sudo -E su postgres -c "psql -f postgre_conf.sql"<br>
     python manage.py makemigrations && python manage.py migrate<br>
     python manage.py runserver<br>
 
@@ -24,8 +26,6 @@ After in new terminal:<br>
     . .env/bin/activate<br>
     scrapyd<br>
 
-Configure your DB_PATH in .../final_project_web/image_aggregator/web_bot/web_bot/settings.py and .../final_project_web/autobahn_proj/settings.py.<br>
-
 After in new terminal:<br>
     cd .../final_project_web<br>
     . .env/bin/activate<br>
@@ -40,3 +40,12 @@ After in new terminal:
 ## Use
 
 In your browser: localhost:8000
+
+## Besides
+
+You may deploy this application to vagrant box.<br>
+To do this:<br>
+sudo apt-get install virtualbox<br>
+sudo apt-get install vagrant<br>
+In project directory: vagrant up --provision<br>
+The project will be deployed on a virtual machine and start the nginx server. For use enter in your browser: http://127.0.0.1:5678
