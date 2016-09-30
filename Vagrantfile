@@ -6,10 +6,10 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-config.vm.box = "hashicorp/precise64"
+config.vm.box = "bento/ubuntu-15.04"
 config.vm.provision :shell, path: "bootstrap.sh"
 #config.vm.provision :shell, path: "server.sh"
-config.vm.network :forwarded_port, guest: 8000, host: 1234
+config.vm.network :forwarded_port, guest: 8000, host: 5678
 
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at

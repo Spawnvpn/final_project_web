@@ -58,7 +58,7 @@ LOGGING = {
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': "final_project_web/logfile.txt",
+            'filename': "logfile.txt",
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -131,7 +131,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'final_project_web',
         'USER': 'admin',
-        'PASSWORD': '3926',
+        'PASSWORD': 'admin',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
