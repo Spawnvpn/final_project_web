@@ -132,7 +132,7 @@ DATABASES = {
         'NAME': 'final_project_web',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': '127.0.0.1',
+        'HOST': 'postgres',
         'PORT': '5432',
     }
 }
@@ -204,6 +204,6 @@ RAVEN_CONFIG = {
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
-REDIS_CON = 'redis://localhost:6379/0'
+REDIS_CON = 'redis://redis:6379/0'
 
 # BROKER_URL = 'django://'
