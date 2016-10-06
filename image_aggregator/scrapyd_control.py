@@ -8,7 +8,7 @@ class SpiderManage(object):
     """
     Provides methods for working with ScrapydAPI.
     """
-    API_URL = 'http://scrapyd:6800'
+    API_URL = 'http://scrapyd:6800/'
     PROJECT = 'web_bot'
 
     def __init__(self, keywords):

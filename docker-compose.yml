@@ -1,0 +1,52 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.4
+    volumes:
+      - ./runtime/postgres:/var/lib/postgresql/data:Z
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=final_project_web
+  redis:
+    image: redis
+    volumes:
+      - ./runtime/redis:/data:Z
+  nginx:
+    image: nginx
+    volumes:
+      - ./runtime/final_project_web_nginx.conf:/etc/nginx/conf.d/final_project_web_nginx.conf:Z
+      - ./runtime:/tmp:Z
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://admin:admin@postgres:5432/final_project_web
+      - REDIS_URL=redis://redis:6379/0
+  autobahn:
+    build: ./autobahn_proj
+    command: python3 server.py
+    environment:
+      - DATABASE_URL=postgres://postgres:5432/final_project_web
+      - REDIS_URL=redis://redis:6379/0
+  scrapyd:
+    build: ./scrapyd
+    command: scrapyd --pidfile 55
+    environment:
+      - DATABASE_URL=postgres://postgres:5432/final_project_web
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "6800:6800"
+  django:
+    build: .
+    command: sh start_django.sh
+    environment:
+      - DATABASE_URL=postgres://admin:admin@postgres:5432/final_project_web
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./runtime:/tmp:Z
+      - ./runtime:/code/runtime:Z
+    links:
+      - postgres
+      - redis
+      - scrapyd
+      - autobahn

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import raven
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -126,17 +127,12 @@ WSGI_APPLICATION = 'final_project_web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'final_project_web',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'postgres',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(),
 }
 
+# DATABASES['default'] = dj_database_url.config()
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -203,7 +199,6 @@ RAVEN_CONFIG = {
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
-
-REDIS_CON = 'redis://redis:6379/0'
-
+REDIS_CON = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+# REDIS_CON = 'redis://redis:6379/0'
 # BROKER_URL = 'django://'

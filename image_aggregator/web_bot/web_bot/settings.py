@@ -6,6 +6,7 @@
 #     http://doc.scrapy.org/topics/settings.html
 #
 
+import os
 
 BOT_NAME = 'web_bot'
 # BOT_VERSION = '1.0'
@@ -155,4 +156,4 @@ EXTENSIONS = {
       "scrapy_sentry.extensions.Errors": 10,
   }
 
-REDIS_CON = 'redis://redis:6379/0'
+REDIS_CON = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
