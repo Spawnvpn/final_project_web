@@ -14,6 +14,7 @@ import os
 import raven
 import dj_database_url
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -200,5 +201,13 @@ RAVEN_CONFIG = {
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 REDIS_CON = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+
+BROKER_URL = REDIS_CON
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']  # Ignore other content
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
 # REDIS_CON = 'redis://redis:6379/0'
 # BROKER_URL = 'django://'

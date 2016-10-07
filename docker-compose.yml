@@ -22,20 +22,20 @@ services:
     environment:
       - DATABASE_URL=postgres://admin:admin@postgres:5432/final_project_web
       - REDIS_URL=redis://redis:6379/0
+  scrapyd:
+    build: ./scrapyd
+    command: scrapyd --pidfile 524
+    environment:
+      - DATABASE_URL=postgres://postgres:5432/final_project_web
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "6800:6800"
   autobahn:
     build: ./autobahn_proj
     command: python3 server.py
     environment:
       - DATABASE_URL=postgres://postgres:5432/final_project_web
       - REDIS_URL=redis://redis:6379/0
-  scrapyd:
-    build: ./scrapyd
-    command: scrapyd --pidfile 55
-    environment:
-      - DATABASE_URL=postgres://postgres:5432/final_project_web
-      - REDIS_URL=redis://redis:6379/0
-    ports:
-      - "6800:6800"
   django:
     build: .
     command: sh start_django.sh
@@ -50,3 +50,13 @@ services:
       - redis
       - scrapyd
       - autobahn
+  beat:
+    build: .
+    command: celery -A final_project_web beat --loglevel=info
+    environment:
+      - C_FORCE_ROOT="true"
+  worker:
+    build: .
+    command: celery -A final_project_web worker --loglevel=info
+    environment:
+      - C_FORCE_ROOT="true"
