@@ -52,7 +52,7 @@ pyserial==3.0.1
 python-memcached==1.58
 python-scrapyd-api==2.0.1
 pyxdg==0.25
-PyYAML==3.11
+PyYAML==5.4
 queuelib==1.4.2
 raven==5.27.0
 redis==2.10.5
