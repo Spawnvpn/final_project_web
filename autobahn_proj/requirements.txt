@@ -1,4 +1,4 @@
-autobahn==0.16.0
+autobahn==20.12.3
 contextlib2==0.5.4
 raven==5.26.0
 redis==2.10.5
